@@ -24,6 +24,9 @@ namespace RecipeHub.Controllers
             return Ok(_context.Recipes);
         }
         [HttpGet("{id:int}")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<IEnumerable<RecipeDTO>> GetRecipeByID(int id)
         {
             var recipe = _context.Recipes.FirstOrDefault(r => r.Id == id);
@@ -36,6 +39,10 @@ namespace RecipeHub.Controllers
                 Id = recipe.Id,
                 Name = recipe.Name,
                 PreparationTimeMax = recipe.PreparationTimeMax,
+                PreparationTimeMin = recipe.PreparationTimeMin,
+                IngredientsText = recipe.IngredientsText,
+                RecipeText = recipe.RecipeText,
+                Calories = recipe.Calories,
             };
             return Ok(recipeDto);
         }
