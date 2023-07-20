@@ -24,7 +24,6 @@ namespace RecipeHub.Controllers
             return Ok(_context.Recipes);
         }
         [HttpGet("{id:int}")]
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<IEnumerable<RecipeDTO>> GetRecipeByID(int id)
