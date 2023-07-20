@@ -16,7 +16,15 @@ namespace RecipeHub
                 options.UseNpgsql(builder.Configuration.GetConnectionString("PGSQLDb"));
                 options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
             });
+            
+            builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
+            
+            
+            builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
+            
+            builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policyBuilder =>
@@ -28,9 +36,7 @@ namespace RecipeHub
                 });
             });
             
-            builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
             
-            builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             
             // Add services to the container.
 
