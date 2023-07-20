@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RecipeHub.Domain;
 using RecipeHub.DTO_s;
-using RecipeHub.Infrastructure;
 using RecipeHub.Infrastructure.Repositories;
 
 namespace RecipeHub.Controllers;
