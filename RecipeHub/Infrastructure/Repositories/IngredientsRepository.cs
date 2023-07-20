@@ -49,8 +49,8 @@ public class IngredientsRepository : IIngredientsRepository
             return false;
         }
 
-        ingredientFromDb = _mapper.Map<Ingredient>(ingredient);
-
+        ingredientFromDb.Name = ingredient.Name;
+        
         _dbContext.SaveChanges();
 
         return true;
