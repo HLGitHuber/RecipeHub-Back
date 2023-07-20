@@ -75,4 +75,24 @@ public class IngredientsController : ControllerBase
         return CreatedAtAction(nameof(GetIngredient),
             new { id = ingredient.Id }, ingredientDto);
     }
+
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult UpdateIngredient(int id, [FromBody] IngredientForUpdateDto ingredientForUpdateDto)
+    {
+        var ingredient = _mapper.Map<Ingredient>(ingredientForUpdateDto);
+        ingredient.Id = id;
+
+        var success = _repository.UpdateIngredient(ingredient);
+
+        if (!success)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
 }
