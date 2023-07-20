@@ -9,7 +9,7 @@ public class IngredientsRepository : IIngredientsRepository
     private readonly RecipeDBContext _dbContext;
     private readonly IMapper _mapper;
 
-    public IngredientsRepository(RecipeDBContext dbContext, Mapper mapper)
+    public IngredientsRepository(RecipeDBContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _mapper = mapper;
