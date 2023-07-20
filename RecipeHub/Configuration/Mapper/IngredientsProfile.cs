@@ -9,7 +9,6 @@ public class IngredientsProfile : Profile
     public IngredientsProfile()
     {
         CreateMap<Ingredient, IngredientDto>();
-        CreateMap<Ingredient, IngredientDetailsDto>();
         CreateMap<IngredientForAddDto, Ingredient>();
         CreateMap<IngredientForUpdateDto, Ingredient>();
     }
