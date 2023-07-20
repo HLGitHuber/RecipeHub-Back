@@ -1,5 +1,7 @@
+using System.Reflection;
 using RecipeHub.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using RecipeHub.Infrastructure.Repositories;
 
 
 namespace RecipeHub
@@ -14,7 +16,28 @@ namespace RecipeHub
                 options.UseNpgsql(builder.Configuration.GetConnectionString("PGSQLDb"));
                 options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
             });
+            
+            builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
+            
+            
+            builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
+            
+            builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policyBuilder =>
+                {
+                    policyBuilder
+                        .WithOrigins("http://localhost:3000", "http://localhost:5173")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+            
+            
+            
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -35,7 +58,8 @@ namespace RecipeHub
 
             app.UseAuthorization();
 
-
+            app.UseCors();
+            
             app.MapControllers();
 
             app.Run();

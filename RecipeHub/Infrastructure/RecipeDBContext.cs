@@ -9,5 +9,25 @@ namespace RecipeHub.Infrastructure
         public DbSet<Recipe> Recipes => Set<Recipe>();
         public DbSet<User> Users => Set<User>();
         public RecipeDBContext(DbContextOptions<RecipeDBContext> options):base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Ingredient>()
+                .HasData(new List<Ingredient>()
+                {
+                    new Ingredient()
+                    {
+                        Id = 1, Name = "Milk"
+                    },
+                    new Ingredient()
+                    {
+                        Id = 2, Name = "Butter"
+                    },
+                    new Ingredient()
+                    {
+                        Id = 3, Name = "Cheese"
+                    }
+                });
+        }
     }
 }
