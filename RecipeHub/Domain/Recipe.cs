@@ -18,10 +18,9 @@ namespace RecipeHub.Domain
         public string RecipeText { get; set; }
         public int Calories { get; set; }
         [Required]
-        [ForeignKey(nameof(User))]
-        public int Owner { get; set; }
+        public int UserId { get; set; }
         [Required]
         [ForeignKey(nameof(Ingredient))]
-        public List<Ingredient> Ingredients { get; set;}
+        public List<Ingredient> Ingredients { get; set; } = new();
     }
 }
