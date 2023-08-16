@@ -18,7 +18,8 @@ namespace RecipeHub.Domain
         [Required]
         [MaxLength(100)]
         public string Password { get; set; }
+        [ForeignKey(nameof(Recipe))]
         public List<Recipe> OwnedRecipes { get; set; } = new();
-        public List<Recipe> FavouritedRecipes { get; set; } = new();
+        //public List<Recipe> FavouritedRecipes { get; set; } = new();
     }
 }
