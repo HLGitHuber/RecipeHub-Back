@@ -9,5 +9,6 @@ namespace RecipeHub.Domain
         [Required]
         [MaxLength(100)]
         public string Name { get; set; }
+        public ICollection<RecipeIngredient> Recipes { get; set; }
     }
 }

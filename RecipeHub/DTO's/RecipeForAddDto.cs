@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RecipeHub.DTO_s
 {
-    public class RecipeDTO
+    public class RecipeForAddDto
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         [MaxLength(100)]
         public string Name { get; set; }
@@ -19,7 +17,5 @@ namespace RecipeHub.DTO_s
         public int Calories { get; set; }
         [Required]
         public int UserId { get; set; }
-        [Required]
-        public ICollection<RecipeIngredient> Ingredients { get; set; }
     }
 }

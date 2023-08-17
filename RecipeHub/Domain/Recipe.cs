@@ -20,7 +20,6 @@ namespace RecipeHub.Domain
         [Required]
         public int UserId { get; set; }
         [Required]
-        [ForeignKey(nameof(Ingredient))]
-        public List<Ingredient> Ingredients { get; set; } = new();
+        public ICollection<RecipeIngredient> Ingredients { get; set; }
     }
 }
