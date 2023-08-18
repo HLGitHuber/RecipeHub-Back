@@ -9,7 +9,8 @@ namespace RecipeHub.Configuration.Mapper
         public RecipeProfile()
         {
             CreateMap<Recipe, RecipeDTO>();
-            CreateMap<Recipe, RecipeForAddDto>();       
+            CreateMap<Recipe, RecipeForAddDto>();
+            CreateMap<Recipe, RecipeByIngredientsDTO>();
         }
     }
 }
