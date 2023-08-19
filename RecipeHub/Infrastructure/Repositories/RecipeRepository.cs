@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal;
 using RecipeHub.Domain;
 
 namespace RecipeHub.Infrastructure.Repositories
@@ -37,6 +38,21 @@ namespace RecipeHub.Infrastructure.Repositories
         public bool DeleteRecipe(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<Recipe> GetRecipesByIngredients(List<string>? ingredientNames)
+        {
+            var query = _dbContext.Recipes.AsQueryable();
+
+            if (ingredientNames != null && ingredientNames.Any())
+            {
+                query = query.Where(recipe => ingredientNames
+                    .Any(ingredientName => recipe.Name
+                        .Contains(ingredientName)));
+
+            }
+
+            return query.ToList();
         }
     }
 }
