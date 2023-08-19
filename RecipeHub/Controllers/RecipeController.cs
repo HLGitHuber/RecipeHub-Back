@@ -14,11 +14,14 @@ namespace RecipeHub.Controllers
     {
         private readonly RecipeDBContext _context;
         private readonly IIngredientsRepository _repository;
+        private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
 
-        public RecipeController(RecipeDBContext context)
+        public RecipeController(RecipeDBContext context, IMapper mapper, IRecipeRepository recipeRepository)
         {
+            _mapper = mapper;
             _context = context;
+            _recipeRepository = recipeRepository;
         }
 
         [HttpGet]
@@ -33,7 +36,9 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<IEnumerable<RecipeDTO>> GetRecipeByID(int id)
         {
-            var recipe = _context.Recipes.Include(i=>i.Ingredients).FirstOrDefault(r => r.Id == id);
+            var recipe = _context.Recipes
+                .Include(i=>i.Ingredients)
+                .FirstOrDefault(r => r.Id == id);
             if (recipe == null)
             {
                 return NoContent();
@@ -75,8 +80,28 @@ namespace RecipeHub.Controllers
                 new { id = recipe.Id }, recipe);
 
         }
-        
 
+        [HttpGet("by-ingredients")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public ActionResult<IEnumerable<RecipeByIngredientsDTO>> GetRecipesByIngredients([FromQuery] List<string> ingredientNames)
+        {
+            var recipes = _recipeRepository.GetRecipesByIngredients(ingredientNames);
+
+            // Check if recipes is null before attempting to access properties
+            if (recipes == null)
+            {
+                // Handle the case where recipes is null, e.g., return NotFound()
+                return NotFound();
+            }
+
+            // Continue processing only if recipes is not null
+            var filteredRecipes = recipes
+                .Where(r => r.Ingredients != null && r.Ingredients.Any(ri => ri.Ingredient != null && ingredientNames.Contains(ri.Ingredient.Name)))
+                .ToList();
+
+            return Ok(filteredRecipes);
+        }
 
     }
 }
