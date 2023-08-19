@@ -22,6 +22,8 @@ namespace RecipeHub
             
             
             builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
+
+            builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
             
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             
