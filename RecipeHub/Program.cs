@@ -2,7 +2,9 @@ using System.Reflection;
 using RecipeHub.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using RecipeHub.Infrastructure.Repositories;
-
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace RecipeHub
 {
@@ -61,7 +63,31 @@ namespace RecipeHub
             }
             else if (app.Environment.IsProduction())
             {
-                app.UseExceptionHandler();
+                app.UseExceptionHandler(applicationBuilder =>
+                {
+                    applicationBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.ContentType = "application/json";
+
+
+                        var problemDetailsObject = new ProblemDetails
+                        {
+                            Title = "Unexpected problem occured",
+                            Status = context.Response.StatusCode,
+                            Detail = "We have received information about your issue, we will work on it. Please try again later."
+                        };
+
+                        var problemDetailsJson = JsonSerializer.Serialize(problemDetailsObject);
+
+                        //TODO log the exception
+
+                        await context.Response.WriteAsync(problemDetailsJson);
+                    });
+                });
+
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
