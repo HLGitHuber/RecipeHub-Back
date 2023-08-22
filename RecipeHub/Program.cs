@@ -47,13 +47,21 @@ namespace RecipeHub
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddProblemDetails();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
+
                 app.UseSwagger();
                 app.UseSwaggerUI();
+            }
+            else if (app.Environment.IsProduction())
+            {
+                app.UseExceptionHandler();
             }
 
             app.UseHttpsRedirection();
@@ -68,5 +76,3 @@ namespace RecipeHub
         }
     }
 }
-
-//Am I there?
