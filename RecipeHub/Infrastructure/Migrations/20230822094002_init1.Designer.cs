@@ -9,11 +9,11 @@ using RecipeHub.Infrastructure;
 
 #nullable disable
 
-namespace RecipeHub.Infrastructure.Migrations
+namespace RecipeHub.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
-    [Migration("20230814150019_testMig")]
-    partial class testMig
+    [Migration("20230822094002_init1")]
+    partial class init1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

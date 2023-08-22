@@ -8,7 +8,7 @@ using RecipeHub.Infrastructure;
 
 #nullable disable
 
-namespace RecipeHub.Infrastructure.Migrations
+namespace RecipeHub.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
     partial class RecipeDBContextModelSnapshot : ModelSnapshot
