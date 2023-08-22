@@ -18,7 +18,23 @@ namespace RecipeHub.Controllers
             _context = context;
         }
 
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public ActionResult<IEnumerable<RecipeIngredientDTO>> GetAllIngredientIdsByRecipeId(int id)
+        {
+            var ingredients = _context.RecipeIngredients.Where(i=>i.RecipeId==id);
+            if (ingredients == null)
+            {
+                return NoContent();
+            }
+            return Ok(ingredients);
+        }
+
+
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult AddIngredientsToRecipe(RecipeIngredientDTO recipeIngredientDTO)
         {
             if (recipeIngredientDTO == null)
@@ -44,6 +60,25 @@ namespace RecipeHub.Controllers
             _context.SaveChanges();
 
             return CreatedAtAction(nameof(AddIngredientsToRecipe), new { id = newRecipeIngredient.RecipeId }, newRecipeIngredient);
+        }
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<RecipeIngredientDTO>>> DeleteAllIngredientsForRecipe(int id)
+        {
+            var recipeIngredients = await _context.RecipeIngredients
+            .Where(ri => ri.RecipeId == id)
+            .ToListAsync();
+
+            if (recipeIngredients.Count == 0)
+            {
+                return NotFound();
+            }
+            _context.RecipeIngredients.RemoveRange(recipeIngredients);
+            await _context.SaveChangesAsync();
+            return NoContent();
+
         }
     }
 }

@@ -37,7 +37,7 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredients", (string)null);
 
                     b.HasData(
                         new
@@ -99,7 +99,7 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.HasIndex("Recipe");
 
-                    b.ToTable("Recipes");
+                    b.ToTable("Recipes", (string)null);
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.RecipeIngredient", b =>
@@ -114,7 +114,7 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.HasIndex("IngredientId");
 
-                    b.ToTable("RecipeIngredients");
+                    b.ToTable("RecipeIngredients", (string)null);
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.User", b =>
@@ -142,7 +142,7 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
