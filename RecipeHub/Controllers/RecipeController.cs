@@ -84,9 +84,9 @@ namespace RecipeHub.Controllers
         [HttpGet("by-ingredients")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipeByIngredientsDTO>> GetRecipesByIngredients([FromQuery] List<string> ingredientNames)
+        public ActionResult<IEnumerable<RecipeByIngredientsDTO>> GetRecipesByIngredients([FromQuery] List<int> ingredientIds)
         {
-            var recipes = _recipeRepository.GetRecipesByIngredients(ingredientNames);
+            var recipes = _recipeRepository.GetRecipesByIngredients(ingredientIds);
 
             // Check if recipes is null before attempting to access properties
             if (recipes == null)
@@ -97,7 +97,7 @@ namespace RecipeHub.Controllers
 
             // Continue processing only if recipes is not null
             var filteredRecipes = recipes
-                .Where(r => r.Ingredients != null && r.Ingredients.Any(ri => ri.Ingredient != null && ingredientNames.Contains(ri.Ingredient.Name)))
+                .Where(r => r.Ingredients != null && r.Ingredients.Any(ri => ri.Ingredient != null && ingredientIds.Contains(ri.Ingredient.Id)))
                 .ToList();
 
             return Ok(filteredRecipes);

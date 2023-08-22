@@ -40,19 +40,18 @@ namespace RecipeHub.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Recipe> GetRecipesByIngredients(List<string>? ingredientNames)
+        public IEnumerable<Recipe> GetRecipesByIngredients(List<int>? ingredientIds)
         {
             var query = _dbContext.Recipes.AsQueryable();
 
-            if (ingredientNames != null && ingredientNames.Any())
+            if (ingredientIds != null && ingredientIds.Any())
             {
-                query = query.Where(recipe => ingredientNames
-                    .Any(ingredientName => recipe.Name
-                        .Contains(ingredientName)));
-
+                query = query.Where(recipe => recipe.Ingredients
+                    .Any(ri => ingredientIds.Contains(ri.IngredientId)));
             }
 
             return query.ToList();
         }
+
     }
 }
