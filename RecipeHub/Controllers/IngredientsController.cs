@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using RecipeHub.Domain;
 using RecipeHub.DTO_s;
 using RecipeHub.Infrastructure.Repositories;
@@ -11,11 +13,13 @@ public class IngredientsController : ControllerBase
 {
     private readonly IIngredientsRepository _repository;
     private readonly IMapper _mapper;
+    private readonly IMemoryCache _memoryCache;
 
-    public IngredientsController(IIngredientsRepository repository, IMapper mapper)
+    public IngredientsController(IIngredientsRepository repository, IMapper mapper, IMemoryCache memoryCache)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _mapper = mapper;
+        _memoryCache = memoryCache;
     }
     
     // GET api/ingredients
@@ -36,16 +40,28 @@ public class IngredientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ResponseCache(CacheProfileName = "Any-60")]
     public ActionResult<IngredientDto> GetIngredient(int id)
     {
-        var ingredient = _repository.GetIngredient(id);
+        var cacheKey = $"{nameof(IngredientsController)}-{nameof(GetIngredient)}-{id}";
 
-        if (ingredient is null)
+        if (!_memoryCache.TryGetValue<IngredientDto>(cacheKey, out var ingredientDto))
+        {
+
+            var ingredient = _repository.GetIngredient(id);
+            
+            if (ingredient is not null)
+            {
+                ingredientDto = _mapper.Map<IngredientDto>(ingredient);
+
+                _memoryCache.Set(cacheKey, ingredientDto, TimeSpan.FromSeconds(60));
+            }
+        }
+
+        if (ingredientDto is null)
         {
             return NotFound();
         }
-
-        var ingredientDto = _mapper.Map<IngredientDto>(ingredient);
 
         return Ok(ingredientDto);
     }
