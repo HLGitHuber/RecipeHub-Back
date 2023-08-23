@@ -26,11 +26,27 @@ public class IngredientsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ResponseCache(CacheProfileName = "Any-60")]
     public ActionResult<IEnumerable<IngredientDto>> GetIngredients([FromQuery] string? search)
     {
-        var ingredients = _repository.GetIngredients(search);
+        var cacheKey = $"{nameof(IngredientsController)}-{nameof(GetIngredients)}";
 
-        var ingredientsDto = _mapper.Map<IEnumerable<IngredientDto>>(ingredients);
+        if (!_memoryCache.TryGetValue<IEnumerable<IngredientDto>>(cacheKey, out var ingredientsDto))
+        {
+            var ingredients = _repository.GetIngredients(search);
+
+            if (ingredients is not null)
+            {
+                ingredientsDto = _mapper.Map<IEnumerable<IngredientDto>>(ingredients);
+
+                _memoryCache.Set(cacheKey, ingredientsDto, TimeSpan.FromSeconds(60));
+            }
+        }
+
+        if (ingredientsDto is null)
+        {
+            return NotFound();
+        }
 
         return Ok(ingredientsDto);
     }
