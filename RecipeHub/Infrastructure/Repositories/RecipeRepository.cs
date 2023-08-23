@@ -50,15 +50,14 @@ namespace RecipeHub.Infrastructure.Repositories
                 query = query.Where(recipe => recipe.Ingredients
                     .Any(ri => ingredientIds.Contains(ri.IngredientId)));
             }
-
-            var recipes = query.ToList(); // Fetch the recipes that match the criteria
-
-            // Manually load the Ingredients for each Recipe
+            
+            var recipes = query.ToList();
+            
             foreach (var recipe in recipes)
             {
                 recipe.Ingredients = _dbContext.RecipeIngredients
                     .Where(ri => ri.RecipeId == recipe.Id)
-                    .ToList(); // Load the RecipeIngredients
+                    .ToList(); 
             }
 
             return recipes;
