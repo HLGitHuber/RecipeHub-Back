@@ -88,19 +88,14 @@ namespace RecipeHub.Controllers
         {
             var recipes = _recipeRepository.GetRecipesByIngredients(ingredientIds);
 
-            // Check if recipes is null before attempting to access properties
             if (recipes == null)
             {
-                // Handle the case where recipes is null, e.g., return NotFound()
                 return NotFound();
             }
 
-            // Continue processing only if recipes is not null
-            var filteredRecipes = recipes
-                .Where(r => r.Ingredients != null && r.Ingredients.Any(ri => ri.Ingredient != null && ingredientIds.Contains(ri.Ingredient.Id)))
-                .ToList();
-
-            return Ok(filteredRecipes);
+            var recipesDto = _mapper.Map<IEnumerable<RecipeByIngredientsDTO>>(recipes);
+            
+            return Ok(recipesDto);
         }
 
     }
