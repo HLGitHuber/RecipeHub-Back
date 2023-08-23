@@ -43,25 +43,29 @@ namespace RecipeHub.Infrastructure.Repositories
 
         public IEnumerable<Recipe> GetRecipesByIngredients(List<int>? ingredientIds)
         {
-            var query = _dbContext.Recipes.AsQueryable();
+            if (ingredientIds == null || !ingredientIds.Any())
+            {
+                // If no ingredients are provided, return an empty list or handle it as needed.
+                return new List<Recipe>();
+            }
 
-            if (ingredientIds != null && ingredientIds.Any())
-            {
-                query = query.Where(recipe => recipe.Ingredients
-                    .Any(ri => ingredientIds.Contains(ri.IngredientId)));
-            }
+            var recipeIds = _dbContext.RecipeIngredients
+                .Where(ri => ingredientIds.Contains(ri.IngredientId))
+                .Select(ri => ri.RecipeId)
+                .Distinct()
+                .ToList(); // Materialize the query to execute it in memory
+
+            var recipes = _dbContext.Recipes
+                .Where(recipe => recipeIds.Contains(recipe.Id))
+                .ToList(); // Materialize the query to execute it in memory
             
-            var recipes = query.ToList();
-            
-            foreach (var recipe in recipes)
-            {
-                recipe.Ingredients = _dbContext.RecipeIngredients
-                    .Where(ri => ri.RecipeId == recipe.Id)
-                    .ToList(); 
-            }
+
 
             return recipes;
         }
+
+
+
 
 
 
