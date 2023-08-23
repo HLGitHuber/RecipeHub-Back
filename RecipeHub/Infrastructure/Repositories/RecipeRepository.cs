@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.Internal;
+using Microsoft.EntityFrameworkCore;
 using RecipeHub.Domain;
 
 namespace RecipeHub.Infrastructure.Repositories
@@ -50,8 +51,21 @@ namespace RecipeHub.Infrastructure.Repositories
                     .Any(ri => ingredientIds.Contains(ri.IngredientId)));
             }
 
-            return query.ToList();
+            var recipes = query.ToList(); // Fetch the recipes that match the criteria
+
+            // Manually load the Ingredients for each Recipe
+            foreach (var recipe in recipes)
+            {
+                recipe.Ingredients = _dbContext.RecipeIngredients
+                    .Where(ri => ri.RecipeId == recipe.Id)
+                    .ToList(); // Load the RecipeIngredients
+            }
+
+            return recipes;
         }
+
+
+
 
     }
 }

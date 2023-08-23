@@ -40,6 +40,38 @@ namespace RecipeHub.Infrastructure
                         Id = 3, Name = "Cheese"
                     }
                 });
+            
+            modelBuilder.Entity<Recipe>()
+                .HasData(new List<Recipe>()
+                {
+                    new Recipe()
+                    {
+                        Id = 2,
+                        Calories = 1000,
+                        Name = "Milk with cheese",
+                        PreparationTimeMin = 1,
+                        PreparationTimeMax = 2,
+                        IngredientsText = "IngredientsText",
+                        RecipeText = "RecipeText",
+                        UserId = 0
+                    }
+                });
+
+            modelBuilder.Entity<RecipeIngredient>()
+                .HasData(new List<RecipeIngredient>()
+                {
+                    new RecipeIngredient()
+                    {
+                        IngredientId = 1, // Milk
+                        RecipeId = 2
+                    },
+                    new RecipeIngredient()
+                    {
+                        IngredientId = 3, // Cheese
+                        RecipeId = 2
+                    }
+                });
+
 
         }
     }
