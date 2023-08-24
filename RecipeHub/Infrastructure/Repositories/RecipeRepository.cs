@@ -50,35 +50,6 @@ namespace RecipeHub.Infrastructure.Repositories
                 .Where(recipe => recipe.Ingredients.All(ri => ingredientIDs.Contains(ri.IngredientId)))
                 .ToListAsync();
         }
-
-        public IEnumerable<Recipe> GetRecipesByIngredients(List<int>? ingredientIds)
-        {
-            if (ingredientIds == null || !ingredientIds.Any())
-            {
-                // If no ingredients are provided, return an empty list or handle it as needed.
-                return new List<Recipe>();
-            }
-
-            var recipeIds = _dbContext.RecipeIngredients
-                .Where(ri => ingredientIds.Contains(ri.IngredientId))
-                .Select(ri => ri.RecipeId)
-                .Distinct()
-                .ToList(); // Materialize the query to execute it in memory
-
-            var recipes = _dbContext.Recipes
-                .Where(recipe => recipeIds.Contains(recipe.Id))
-                .ToList(); // Materialize the query to execute it in memory
-            
-
-
-            return recipes;
-        }
-
-
-
-
-
-
-
+        
     }
 }

@@ -104,22 +104,5 @@ namespace RecipeHub.Controllers
 
         }
 
-        [HttpGet("by-ingredients")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipeByIngredientsDTO>> GetRecipesByIngredients([FromQuery] List<int> ingredientIds)
-        {
-            var recipes = _recipeRepository.GetRecipesByIngredients(ingredientIds);
-
-            if (recipes == null)
-            {
-                return NotFound();
-            }
-
-            var recipesDto = _mapper.Map<IEnumerable<RecipeByIngredientsDTO>>(recipes);
-            
-            return Ok(recipesDto);
-        }
-
     }
 }
