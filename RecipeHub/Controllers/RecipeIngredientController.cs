@@ -37,19 +37,36 @@ namespace RecipeHub.Controllers
             return Ok(ingredientIds);
         }
 
+        [HttpGet("ingredientnames/{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<string>>> GetIngredientNamesForRecipeId(int id)
+        {
+            var ingredientNames = await _context.RecipeIngredients
+                .Where(i => i.RecipeId == id)
+                .Select(i => i.Ingredient.Name)
+                .ToListAsync();
+
+            if (ingredientNames.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(ingredientNames);
+        }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddIngredientsToRecipe(RecipeIngredientDTO recipeIngredientDTO)
+        public IActionResult AddIngredientsToRecipe(RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
-            if (recipeIngredientDTO == null)
+            if (recipeIngredientForAddDTO == null)
             {
                 return BadRequest("RecipeIngredient data is null.");
             }
 
-            var recipe = _context.Recipes.Find(recipeIngredientDTO.RecipeId);
-            var ingredient = _context.Ingredients.Find(recipeIngredientDTO.IngredientId);
+            var recipe = _context.Recipes.Find(recipeIngredientForAddDTO.RecipeId);
+            var ingredient = _context.Ingredients.Find(recipeIngredientForAddDTO.IngredientId);
 
             if (recipe == null || ingredient == null)
             {
@@ -67,6 +84,7 @@ namespace RecipeHub.Controllers
 
             return CreatedAtAction(nameof(AddIngredientsToRecipe), new { id = newRecipeIngredient.RecipeId }, newRecipeIngredient);
         }
+
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
