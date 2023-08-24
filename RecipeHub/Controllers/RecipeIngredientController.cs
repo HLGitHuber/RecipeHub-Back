@@ -56,17 +56,18 @@ namespace RecipeHub.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddIngredientsToRecipe(RecipeIngredientForAddDto recipeIngredientForAddDTO)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddIngredientsToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
             if (recipeIngredientForAddDTO == null)
             {
                 return BadRequest("RecipeIngredient data is null.");
             }
 
-            var recipe = _context.Recipes.Find(recipeIngredientForAddDTO.RecipeId);
-            var ingredient = _context.Ingredients.Find(recipeIngredientForAddDTO.IngredientId);
+            var recipe = await _context.Recipes.FindAsync(recipeIngredientForAddDTO.RecipeId);
+            var ingredient = await _context.Ingredients.FindAsync(recipeIngredientForAddDTO.IngredientId);
 
             if (recipe == null || ingredient == null)
             {
@@ -79,13 +80,13 @@ namespace RecipeHub.Controllers
                 Ingredient = ingredient
             };
 
-            _context.RecipeIngredients.Add(newRecipeIngredient);
-            _context.SaveChanges();
+            await _context.RecipeIngredients.AddAsync(newRecipeIngredient);
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(AddIngredientsToRecipe), new { id = newRecipeIngredient.RecipeId }, newRecipeIngredient);
+            return NoContent();
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("deleteallingredients/{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -102,7 +103,28 @@ namespace RecipeHub.Controllers
             _context.RecipeIngredients.RemoveRange(recipeIngredients);
             await _context.SaveChangesAsync();
             return NoContent();
-
         }
+
+        [HttpDelete("deletesingleingredient")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> DeleteSingleIngredientFromRecipe([FromQuery] int recipeid, int ingredientid)
+        {
+            var recipeIngredient = await _context.RecipeIngredients
+                .FirstOrDefaultAsync(ri => ri.RecipeId == recipeid && ri.IngredientId == ingredientid);
+
+            if (recipeIngredient == null)
+            {
+                return NotFound();
+            }
+
+            _context.RecipeIngredients.Remove(recipeIngredient);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
     }
 }
