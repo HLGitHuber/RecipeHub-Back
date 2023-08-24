@@ -21,11 +21,11 @@ namespace RecipeHub.Infrastructure.Repositories
             return _dbContext.Recipes;
         }
 
-        public Recipe? GetRecipe(int id)
+        public async Task<Recipe?> GetRecipe(int id)
         {
-            return _dbContext.Recipes
+            return await _dbContext.Recipes
                 .Include(i=>i.Ingredients)
-                .FirstOrDefault(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
         public void AddRecipe(Recipe recipe)

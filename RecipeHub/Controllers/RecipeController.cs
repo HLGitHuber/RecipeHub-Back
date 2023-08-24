@@ -38,11 +38,11 @@ namespace RecipeHub.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipeDTO>> GetRecipeByID(int id)
+        public async Task<ActionResult<IEnumerable<RecipeDTO>>> GetRecipeByID(int id)
         {
             _logger.LogInformation($"Getting recipe with id {id}");
 
-            var recipe = _recipeRepository.GetRecipe(id);
+            var recipe = await _recipeRepository.GetRecipe(id);
             
             if (recipe == null)
             {
