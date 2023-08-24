@@ -16,19 +16,22 @@ namespace RecipeHub.Infrastructure.Repositories
             _mapper = mapper;
         }
         
-        public IEnumerable<Recipe> GetRecipe(string? search)
+        public IEnumerable<Recipe> GetRecipes()
         {
-            throw new NotImplementedException();
+            return _dbContext.Recipes;
         }
 
         public Recipe? GetRecipe(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Recipes
+                .Include(i=>i.Ingredients)
+                .FirstOrDefault(r => r.Id == id);
         }
 
         public void AddRecipe(Recipe recipe)
         {
-            throw new NotImplementedException();
+            _dbContext.Recipes.Add(recipe);
+            _dbContext.SaveChanges();
         }
 
         public bool UpdateRecipe(Recipe recipe)
@@ -41,34 +44,12 @@ namespace RecipeHub.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Recipe> GetRecipesByIngredients(List<int>? ingredientIds)
+        public async Task<IEnumerable<Recipe>> GetRecipesByIngredientIDs(List<int> ingredientIDs)
         {
-            if (ingredientIds == null || !ingredientIds.Any())
-            {
-                // If no ingredients are provided, return an empty list or handle it as needed.
-                return new List<Recipe>();
-            }
-
-            var recipeIds = _dbContext.RecipeIngredients
-                .Where(ri => ingredientIds.Contains(ri.IngredientId))
-                .Select(ri => ri.RecipeId)
-                .Distinct()
-                .ToList(); // Materialize the query to execute it in memory
-
-            var recipes = _dbContext.Recipes
-                .Where(recipe => recipeIds.Contains(recipe.Id))
-                .ToList(); // Materialize the query to execute it in memory
-            
-
-
-            return recipes;
+            return await _dbContext.Recipes
+                .Where(recipe => recipe.Ingredients.All(ri => ingredientIDs.Contains(ri.IngredientId)))
+                .ToListAsync();
         }
-
-
-
-
-
-
-
+        
     }
 }

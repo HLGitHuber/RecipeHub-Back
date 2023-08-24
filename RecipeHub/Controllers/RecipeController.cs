@@ -12,16 +12,13 @@ namespace RecipeHub.Controllers
     [ApiController]
     public class RecipeController: ControllerBase
     {
-        private readonly RecipeDBContext _context;
-        private readonly IIngredientsRepository _repository;
         private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public RecipeController(RecipeDBContext context, IMapper mapper, IRecipeRepository recipeRepository, ILogger<Recipe> logger)
+        public RecipeController(IMapper mapper, IRecipeRepository recipeRepository, ILogger<Recipe> logger)
         {
             _mapper = mapper;
-            _context = context;
             _recipeRepository = recipeRepository;
             _logger = logger;
         }
@@ -32,8 +29,12 @@ namespace RecipeHub.Controllers
         public ActionResult<IEnumerable<RecipesAllDto>> GetAllRecipes()
         {
             _logger.LogInformation("Getting all recipes");
-            return Ok(_context.Recipes);
+
+            var recipes = _recipeRepository.GetRecipes();
+
+            return Ok(recipes);
         }
+        
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -41,24 +42,16 @@ namespace RecipeHub.Controllers
         {
             _logger.LogInformation($"Getting recipe with id {id}");
 
-            var recipe = _context.Recipes
-                .Include(i=>i.Ingredients)
-                .FirstOrDefault(r => r.Id == id);
+            var recipe = _recipeRepository.GetRecipe(id);
+            
             if (recipe == null)
             {
                 _logger.LogWarning($"Recipe with id {id} wasn't found");
                 return NotFound();
             }
-            var recipeDto = new RecipeDTO()
-            {
-                Id = recipe.Id,
-                Name = recipe.Name,
-                PreparationTimeMax = recipe.PreparationTimeMax,
-                PreparationTimeMin = recipe.PreparationTimeMin,
-                IngredientsText = recipe.IngredientsText,
-                RecipeText = recipe.RecipeText,
-                Calories = recipe.Calories,              
-            };
+            
+            var recipeDto = _mapper.Map<IEnumerable<RecipeDTO>>(recipe);
+            
             return Ok(recipeDto);
         }
 
@@ -72,12 +65,13 @@ namespace RecipeHub.Controllers
                 return BadRequest("No ingredient IDs provided.");
             }
 
-            var recipes = await _context.Recipes
-                .Where(recipe => recipe.Ingredients.All(ri => ingredientIDs.Contains(ri.IngredientId)))
-                .ToListAsync();
+            var recipes = await _recipeRepository.GetRecipesByIngredientIDs(ingredientIDs);
 
-            return Ok(recipes);
+            var recipesDto = _mapper.Map<IEnumerable<RecipeByIngredientsDTO>>(recipes);
+            
+            return Ok(recipesDto);
         }
+        
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -100,8 +94,7 @@ namespace RecipeHub.Controllers
 
             var recipe = _mapper.Map<Recipe>(recipeForAddDto);
 
-            _context.Recipes.Add(recipe);
-            _context.SaveChangesAsync();
+            _recipeRepository.AddRecipe(recipe);
 
             _logger.LogInformation($"New recipe added with id {recipe.Id}");
 
@@ -109,23 +102,6 @@ namespace RecipeHub.Controllers
             return CreatedAtAction(nameof(GetAllRecipes),
                 new { id = recipe.Id }, recipe);
 
-        }
-
-        [HttpGet("by-ingredients")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipeByIngredientsDTO>> GetRecipesByIngredients([FromQuery] List<int> ingredientIds)
-        {
-            var recipes = _recipeRepository.GetRecipesByIngredients(ingredientIds);
-
-            if (recipes == null)
-            {
-                return NotFound();
-            }
-
-            var recipesDto = _mapper.Map<IEnumerable<RecipeByIngredientsDTO>>(recipes);
-            
-            return Ok(recipesDto);
         }
 
     }
