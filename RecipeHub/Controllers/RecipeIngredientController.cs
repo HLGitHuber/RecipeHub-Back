@@ -20,15 +20,21 @@ namespace RecipeHub.Controllers
 
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipeIngredientDTO>> GetAllIngredientIdsByRecipeId(int id)
+        public async Task<ActionResult<IEnumerable<int>>> GetAllIngredientIdsByRecipeId(int id)
         {
-            var ingredients = _context.RecipeIngredients.Where(i=>i.RecipeId==id);
-            if (ingredients == null)
+            var ingredientIds = await _context.RecipeIngredients
+                .Where(i => i.RecipeId == id)
+                .Select(i => i.IngredientId)
+                .ToListAsync();
+
+            if (ingredientIds.Count == 0)
             {
-                return NoContent();
+                return NotFound();
             }
-            return Ok(ingredients);
+
+            return Ok(ingredientIds);
         }
 
 
