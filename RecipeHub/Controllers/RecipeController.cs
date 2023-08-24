@@ -54,7 +54,7 @@ namespace RecipeHub.Controllers
         [HttpGet("recipesbyingredients")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipesByIngredientIDs([FromQuery] List<int> ingredientIDs)
+        public async Task<ActionResult<IEnumerable<RecipeDTO>>> GetRecipesByIngredientIDs([FromQuery] List<int> ingredientIDs)
         {
             if (ingredientIDs == null || ingredientIDs.Count == 0)
             {
