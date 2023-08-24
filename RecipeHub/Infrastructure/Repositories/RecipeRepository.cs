@@ -16,9 +16,9 @@ namespace RecipeHub.Infrastructure.Repositories
             _mapper = mapper;
         }
         
-        public IEnumerable<Recipe> GetRecipes()
+        public async Task<IEnumerable<Recipe>> GetRecipes()
         {
-            return _dbContext.Recipes;
+            return await _dbContext.Recipes.ToListAsync();
         }
 
         public async Task<Recipe?> GetRecipe(int id)
