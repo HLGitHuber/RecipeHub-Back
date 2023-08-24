@@ -44,24 +44,16 @@ namespace RecipeHub.Controllers
         {
             _logger.LogInformation($"Getting recipe with id {id}");
 
-            var recipe = _context.Recipes
-                .Include(i=>i.Ingredients)
-                .FirstOrDefault(r => r.Id == id);
+            var recipe = _recipeRepository.GetRecipe(id);
+            
             if (recipe == null)
             {
                 _logger.LogWarning($"Recipe with id {id} wasn't found");
                 return NotFound();
             }
-            var recipeDto = new RecipeDTO()
-            {
-                Id = recipe.Id,
-                Name = recipe.Name,
-                PreparationTimeMax = recipe.PreparationTimeMax,
-                PreparationTimeMin = recipe.PreparationTimeMin,
-                IngredientsText = recipe.IngredientsText,
-                RecipeText = recipe.RecipeText,
-                Calories = recipe.Calories,              
-            };
+            
+            var recipeDto = _mapper.Map<IEnumerable<RecipeDTO>>(recipe);
+            
             return Ok(recipeDto);
         }
 

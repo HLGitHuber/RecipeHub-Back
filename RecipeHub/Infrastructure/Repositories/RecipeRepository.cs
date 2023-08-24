@@ -23,7 +23,9 @@ namespace RecipeHub.Infrastructure.Repositories
 
         public Recipe? GetRecipe(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Recipes
+                .Include(i=>i.Ingredients)
+                .FirstOrDefault(r => r.Id == id);
         }
 
         public void AddRecipe(Recipe recipe)
