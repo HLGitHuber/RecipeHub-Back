@@ -76,7 +76,7 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddRecipe([FromBody] RecipeForAddDto recipeForAddDto)
+        public async Task<IActionResult> AddRecipe([FromBody] RecipeForAddDto recipeForAddDto)
         {
             _logger.LogInformation("Adding new recipe");
 
@@ -94,7 +94,7 @@ namespace RecipeHub.Controllers
 
             var recipe = _mapper.Map<Recipe>(recipeForAddDto);
 
-            _recipeRepository.AddRecipe(recipe);
+            await _recipeRepository.AddRecipe(recipe);
 
             _logger.LogInformation($"New recipe added with id {recipe.Id}");
 

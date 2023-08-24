@@ -28,10 +28,10 @@ namespace RecipeHub.Infrastructure.Repositories
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public void AddRecipe(Recipe recipe)
+        public async Task AddRecipe(Recipe recipe)
         {
             _dbContext.Recipes.Add(recipe);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         public bool UpdateRecipe(Recipe recipe)
