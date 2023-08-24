@@ -9,11 +9,11 @@ using RecipeHub.Infrastructure;
 
 #nullable disable
 
-namespace RecipeHub.Infrastructure.Migrations
+namespace RecipeHub.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
-    [Migration("20230720092419_ingredientInit")]
-    partial class ingredientInit
+    [Migration("20230822150420_modelCreatingRecipe")]
+    partial class modelCreatingRecipe
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,17 +33,12 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Ingredient")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Ingredient");
 
                     b.ToTable("Ingredients");
 
@@ -86,13 +81,13 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("Owner")
-                        .HasColumnType("integer");
-
                     b.Property<int>("PreparationTimeMax")
                         .HasColumnType("integer");
 
                     b.Property<int>("PreparationTimeMin")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Recipe")
                         .HasColumnType("integer");
 
                     b.Property<string>("RecipeText")
@@ -100,19 +95,54 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasMaxLength(5000)
                         .HasColumnType("character varying(5000)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("UserId1")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
+                    b.HasIndex("Recipe");
 
                     b.ToTable("Recipes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 2,
+                            Calories = 1000,
+                            IngredientsText = "IngredientsText",
+                            Name = "Milk with cheese",
+                            PreparationTimeMax = 2,
+                            PreparationTimeMin = 1,
+                            RecipeText = "RecipeText",
+                            UserId = 0
+                        });
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.RecipeIngredient", b =>
+                {
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RecipeId", "IngredientId");
+
+                    b.HasIndex("IngredientId");
+
+                    b.ToTable("RecipeIngredients");
+
+                    b.HasData(
+                        new
+                        {
+                            RecipeId = 2,
+                            IngredientId = 1
+                        },
+                        new
+                        {
+                            RecipeId = 2,
+                            IngredientId = 3
+                        });
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.User", b =>
@@ -143,22 +173,35 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("RecipeHub.Domain.Ingredient", b =>
-                {
-                    b.HasOne("RecipeHub.Domain.Recipe", null)
-                        .WithMany("Ingredients")
-                        .HasForeignKey("Ingredient");
-                });
-
             modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
                 {
                     b.HasOne("RecipeHub.Domain.User", null)
-                        .WithMany("FavouritedRecipes")
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("RecipeHub.Domain.User", null)
                         .WithMany("OwnedRecipes")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("Recipe");
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.RecipeIngredient", b =>
+                {
+                    b.HasOne("RecipeHub.Domain.Ingredient", "Ingredient")
+                        .WithMany("Recipes")
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecipeHub.Domain.Recipe", "Recipe")
+                        .WithMany("Ingredients")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+
+                    b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.Ingredient", b =>
+                {
+                    b.Navigation("Recipes");
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
@@ -168,8 +211,6 @@ namespace RecipeHub.Infrastructure.Migrations
 
             modelBuilder.Entity("RecipeHub.Domain.User", b =>
                 {
-                    b.Navigation("FavouritedRecipes");
-
                     b.Navigation("OwnedRecipes");
                 });
 #pragma warning restore 612, 618
