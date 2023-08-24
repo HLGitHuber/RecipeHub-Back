@@ -30,7 +30,8 @@ namespace RecipeHub.Infrastructure.Repositories
 
         public void AddRecipe(Recipe recipe)
         {
-            throw new NotImplementedException();
+            _dbContext.Recipes.Add(recipe);
+            _dbContext.SaveChanges();
         }
 
         public bool UpdateRecipe(Recipe recipe)

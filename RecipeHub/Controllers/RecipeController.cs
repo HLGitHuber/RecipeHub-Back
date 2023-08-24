@@ -73,6 +73,7 @@ namespace RecipeHub.Controllers
 
             return Ok(recipes);
         }
+        
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -95,8 +96,7 @@ namespace RecipeHub.Controllers
 
             var recipe = _mapper.Map<Recipe>(recipeForAddDto);
 
-            _context.Recipes.Add(recipe);
-            _context.SaveChangesAsync();
+            _recipeRepository.AddRecipe(recipe);
 
             _logger.LogInformation($"New recipe added with id {recipe.Id}");
 
