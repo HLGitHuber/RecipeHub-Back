@@ -4,7 +4,7 @@ namespace RecipeHub.Infrastructure.Repositories
 {
     public interface IRecipeRepository
     {
-        IEnumerable<Recipe> GetRecipe(string? search);
+        IEnumerable<Recipe> GetRecipes();
         Recipe? GetRecipe(int id);
         void AddRecipe(Recipe recipe);
         bool UpdateRecipe(Recipe recipe);

@@ -16,9 +16,9 @@ namespace RecipeHub.Infrastructure.Repositories
             _mapper = mapper;
         }
         
-        public IEnumerable<Recipe> GetRecipe(string? search)
+        public IEnumerable<Recipe> GetRecipes()
         {
-            throw new NotImplementedException();
+            return _dbContext.Recipes;
         }
 
         public Recipe? GetRecipe(int id)

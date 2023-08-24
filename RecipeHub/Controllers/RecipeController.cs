@@ -13,7 +13,6 @@ namespace RecipeHub.Controllers
     public class RecipeController: ControllerBase
     {
         private readonly RecipeDBContext _context;
-        private readonly IIngredientsRepository _repository;
         private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
@@ -32,8 +31,12 @@ namespace RecipeHub.Controllers
         public ActionResult<IEnumerable<RecipesAllDto>> GetAllRecipes()
         {
             _logger.LogInformation("Getting all recipes");
-            return Ok(_context.Recipes);
+
+            var recipes = _recipeRepository.GetRecipes();
+
+            return Ok(recipes);
         }
+        
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
