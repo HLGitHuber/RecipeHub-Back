@@ -12,15 +12,13 @@ namespace RecipeHub.Controllers
     [ApiController]
     public class RecipeController: ControllerBase
     {
-        private readonly RecipeDBContext _context;
         private readonly IRecipeRepository _recipeRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public RecipeController(RecipeDBContext context, IMapper mapper, IRecipeRepository recipeRepository, ILogger<Recipe> logger)
+        public RecipeController(IMapper mapper, IRecipeRepository recipeRepository, ILogger<Recipe> logger)
         {
             _mapper = mapper;
-            _context = context;
             _recipeRepository = recipeRepository;
             _logger = logger;
         }
@@ -67,11 +65,11 @@ namespace RecipeHub.Controllers
                 return BadRequest("No ingredient IDs provided.");
             }
 
-            var recipes = await _context.Recipes
-                .Where(recipe => recipe.Ingredients.All(ri => ingredientIDs.Contains(ri.IngredientId)))
-                .ToListAsync();
+            var recipes = await _recipeRepository.GetRecipesByIngredientIDs(ingredientIDs);
 
-            return Ok(recipes);
+            var recipesDto = _mapper.Map<IEnumerable<RecipeByIngredientsDTO>>(recipes);
+            
+            return Ok(recipesDto);
         }
         
         [HttpPost]

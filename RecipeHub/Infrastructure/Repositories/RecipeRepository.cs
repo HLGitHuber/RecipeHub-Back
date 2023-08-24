@@ -44,6 +44,13 @@ namespace RecipeHub.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<IEnumerable<Recipe>> GetRecipesByIngredientIDs(List<int> ingredientIDs)
+        {
+            return await _dbContext.Recipes
+                .Where(recipe => recipe.Ingredients.All(ri => ingredientIDs.Contains(ri.IngredientId)))
+                .ToListAsync();
+        }
+
         public IEnumerable<Recipe> GetRecipesByIngredients(List<int>? ingredientIds)
         {
             if (ingredientIds == null || !ingredientIds.Any())
