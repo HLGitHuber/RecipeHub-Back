@@ -50,6 +50,23 @@ namespace RecipeHub.Controllers
             };
             return Ok(recipeDto);
         }
+
+        [HttpGet("recipesbyingredients")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipesByIngredientIDs([FromQuery] List<int> ingredientIDs)
+        {
+            if (ingredientIDs == null || ingredientIDs.Count == 0)
+            {
+                return BadRequest("No ingredient IDs provided.");
+            }
+
+            var recipes = await _context.Recipes
+                .Where(recipe => recipe.Ingredients.All(ri => ingredientIDs.Contains(ri.IngredientId)))
+                .ToListAsync();
+
+            return Ok(recipes);
+        }
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
