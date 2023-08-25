@@ -16,22 +16,22 @@ namespace RecipeHub.Infrastructure.Repositories
             _mapper = mapper;
         }
         
-        public IEnumerable<Recipe> GetRecipes()
+        public async Task<IEnumerable<Recipe>> GetRecipes()
         {
-            return _dbContext.Recipes;
+            return await _dbContext.Recipes.ToListAsync();
         }
 
-        public Recipe? GetRecipe(int id)
+        public async Task<Recipe?> GetRecipe(int id)
         {
-            return _dbContext.Recipes
+            return await _dbContext.Recipes
                 .Include(i=>i.Ingredients)
-                .FirstOrDefault(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public void AddRecipe(Recipe recipe)
+        public async Task AddRecipe(Recipe recipe)
         {
             _dbContext.Recipes.Add(recipe);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         public bool UpdateRecipe(Recipe recipe)

@@ -26,11 +26,11 @@ namespace RecipeHub.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipesAllDto>> GetAllRecipes()
+        public async Task<ActionResult<IEnumerable<RecipesAllDto>>> GetAllRecipes()
         {
             _logger.LogInformation("Getting all recipes");
 
-            var recipes = _recipeRepository.GetRecipes();
+            var recipes = await _recipeRepository.GetRecipes();
 
             return Ok(recipes);
         }
@@ -38,11 +38,11 @@ namespace RecipeHub.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<IEnumerable<RecipeDTO>> GetRecipeByID(int id)
+        public async Task<ActionResult<IEnumerable<RecipeDTO>>> GetRecipeById(int id)
         {
             _logger.LogInformation($"Getting recipe with id {id}");
 
-            var recipe = _recipeRepository.GetRecipe(id);
+            var recipe = await _recipeRepository.GetRecipe(id);
             
             if (recipe == null)
             {
@@ -76,7 +76,7 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AddRecipe([FromBody] RecipeForAddDto recipeForAddDto)
+        public async Task<IActionResult> AddRecipe([FromBody] RecipeForAddDto recipeForAddDto)
         {
             _logger.LogInformation("Adding new recipe");
 
@@ -94,7 +94,7 @@ namespace RecipeHub.Controllers
 
             var recipe = _mapper.Map<Recipe>(recipeForAddDto);
 
-            _recipeRepository.AddRecipe(recipe);
+            await _recipeRepository.AddRecipe(recipe);
 
             _logger.LogInformation($"New recipe added with id {recipe.Id}");
 
