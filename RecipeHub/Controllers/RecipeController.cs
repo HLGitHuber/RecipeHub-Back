@@ -38,7 +38,7 @@ namespace RecipeHub.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<RecipeDTO>>> GetRecipeById(int id)
+        public async Task<ActionResult<RecipeDTO>> GetRecipeById(int id)
         {
             _logger.LogInformation($"Getting recipe with id {id}");
 
@@ -50,7 +50,7 @@ namespace RecipeHub.Controllers
                 return NotFound();
             }
             
-            var recipeDto = _mapper.Map<IEnumerable<RecipeDTO>>(recipe);
+            var recipeDto = _mapper.Map<RecipeDTO>(recipe);
             
             return Ok(recipeDto);
         }
