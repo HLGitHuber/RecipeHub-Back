@@ -29,7 +29,7 @@ public class IngredientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ResponseCache(CacheProfileName = "Any-60")]
-    public ActionResult<IEnumerable<IngredientDto>> GetIngredients([FromQuery] string? search)
+    public async Task<ActionResult<IEnumerable<IngredientDto>>> GetIngredients([FromQuery] string? search)
     {
         _logger.LogInformation("Getting all ingredients");
 
@@ -37,7 +37,7 @@ public class IngredientsController : ControllerBase
 
         if (!_memoryCache.TryGetValue<IEnumerable<IngredientDto>>(cacheKey, out var ingredientsDto))
         {
-            var ingredients = _repository.GetIngredients(search);
+            var ingredients = await _repository.GetIngredients(search);
 
             if (ingredients is not null)
             {
@@ -61,7 +61,7 @@ public class IngredientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ResponseCache(CacheProfileName = "Any-60")]
-    public ActionResult<IngredientDto> GetIngredient(int id)
+    public async Task<ActionResult<IngredientDto>> GetIngredient(int id)
     {
         _logger.LogInformation($"Getting ingredient with id {id}");
 
@@ -70,7 +70,7 @@ public class IngredientsController : ControllerBase
         if (!_memoryCache.TryGetValue<IngredientDto>(cacheKey, out var ingredientDto))
         {
 
-            var ingredient = _repository.GetIngredient(id);
+            var ingredient = await _repository.GetIngredient(id);
             
             if (ingredient is not null)
             {
@@ -93,7 +93,7 @@ public class IngredientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult AddIngredient([FromBody] IngredientForAddDto ingredientForAddDto)
+    public async Task<IActionResult> AddIngredient([FromBody] IngredientForAddDto ingredientForAddDto)
     {
         _logger.LogInformation("Adding new ingredient");
 
@@ -111,7 +111,7 @@ public class IngredientsController : ControllerBase
 
         var ingredient = _mapper.Map<Ingredient>(ingredientForAddDto);
 
-        _repository.AddIngredient(ingredient);
+        await _repository.AddIngredient(ingredient);
 
         _logger.LogInformation($"New ingredient added with id {ingredient.Id}");
 
@@ -126,14 +126,14 @@ public class IngredientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult UpdateIngredient(int id, [FromBody] IngredientForUpdateDto ingredientForUpdateDto)
+    public async Task<IActionResult> UpdateIngredient(int id, [FromBody] IngredientForUpdateDto ingredientForUpdateDto)
     {
         _logger.LogInformation($"Updating ingredient with id {id}");
 
         var ingredient = _mapper.Map<Ingredient>(ingredientForUpdateDto);
         ingredient.Id = id;
 
-        var success = _repository.UpdateIngredient(ingredient);
+        var success = await _repository.UpdateIngredient(ingredient);
 
         if (!success)
         {
@@ -151,11 +151,11 @@ public class IngredientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult DeleteIngredient(int id)
+    public async Task<IActionResult> DeleteIngredient(int id)
     {
         _logger.LogInformation($"Deleting ingredient with id {id}");
 
-        var success = _repository.DeleteIngredient(id);
+        var success = await _repository.DeleteIngredient(id);
 
         if (!success)
         {

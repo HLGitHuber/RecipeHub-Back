@@ -15,7 +15,7 @@ public class IngredientsRepository : IIngredientsRepository
         _mapper = mapper;
     }
     
-    public IEnumerable<Ingredient> GetIngredients(string? search)
+    public async Task<IEnumerable<Ingredient>> GetIngredients(string? search)
     {
         var query = _dbContext.Ingredients.AsQueryable();
 
@@ -24,25 +24,25 @@ public class IngredientsRepository : IIngredientsRepository
             query = query.Where(c => c.Name.Contains(search));
         }
 
-        return query.ToList();
+        return await query.ToListAsync();
     }
 
-    public Ingredient? GetIngredient(int id)
+    public async Task<Ingredient?> GetIngredient(int id)
     {
-        return _dbContext.Ingredients.FirstOrDefault(i => i.Id == id);
+        return await _dbContext.Ingredients.FirstOrDefaultAsync(i => i.Id == id);
     }
 
-    public void AddIngredient(Ingredient ingredient)
+    public async Task AddIngredient(Ingredient ingredient)
     {
-        _dbContext.Ingredients.Add(ingredient);
-        _dbContext.SaveChanges();
+        await _dbContext.Ingredients.AddAsync(ingredient);
+        await _dbContext.SaveChangesAsync();
     }
 
-    public bool UpdateIngredient(Ingredient ingredient)
+    public async Task<bool> UpdateIngredient(Ingredient ingredient)
     {
-        var ingredientFromDb = _dbContext
+        var ingredientFromDb = await _dbContext
             .Ingredients
-            .FirstOrDefault(i => i.Id == ingredient.Id);
+            .FirstOrDefaultAsync(i => i.Id == ingredient.Id);
 
         if (ingredientFromDb is null)
         {
@@ -51,16 +51,16 @@ public class IngredientsRepository : IIngredientsRepository
 
         ingredientFromDb.Name = ingredient.Name;
         
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
 
         return true;
     }
 
-    public bool DeleteIngredient(int id)
+    public async Task<bool> DeleteIngredient(int id)
     {
-        var ingredient = _dbContext
+        var ingredient = await _dbContext
             .Ingredients
-            .FirstOrDefault(i => i.Id == id);
+            .FirstOrDefaultAsync(i => i.Id == id);
 
         if (ingredient is null)
         {
@@ -68,7 +68,7 @@ public class IngredientsRepository : IIngredientsRepository
         }
 
         _dbContext.Ingredients.Remove(ingredient);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
 
         return true;
     }

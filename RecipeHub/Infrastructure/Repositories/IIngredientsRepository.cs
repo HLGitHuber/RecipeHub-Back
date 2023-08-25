@@ -4,9 +4,9 @@ namespace RecipeHub.Infrastructure.Repositories;
 
 public interface IIngredientsRepository
 {
-    IEnumerable<Ingredient> GetIngredients(string? search);
-    Ingredient? GetIngredient(int id);
-    void AddIngredient(Ingredient ingredient);
-    bool UpdateIngredient(Ingredient ingredient);
-    bool DeleteIngredient(int id);
+    Task<IEnumerable<Ingredient>> GetIngredients(string? search);
+    Task<Ingredient?> GetIngredient(int id);
+    Task AddIngredient(Ingredient ingredient);
+    Task<bool> UpdateIngredient(Ingredient ingredient);
+    Task<bool> DeleteIngredient(int id);
 }
