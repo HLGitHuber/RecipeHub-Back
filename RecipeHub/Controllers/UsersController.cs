@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RecipeHub.Domain;
 using RecipeHub.DTO_s;
+using System.Security.Claims;
 
 namespace RecipeHub.Controllers
 {
@@ -59,15 +62,58 @@ namespace RecipeHub.Controllers
         [HttpOptions("login-cookie")]
         [ResponseCache(CacheProfileName = "NoCache")]
         [AllowAnonymous]
-        public Task<IActionResult> LoginCookie()
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)] //make a choice 400 vs 401
+        public async Task<IActionResult> LoginCookie([FromBody] UserForLoginDto userForLoginDto)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByNameAsync(userForLoginDto.UserName);
+            if (user == null)
+            {
+                _logger.LogWarning($"User not found", userForLoginDto.UserName);
+                return Unauthorized(userForLoginDto);
+            }
+            var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning($"Wrong Password", userForLoginDto.UserName);
+                return Unauthorized(userForLoginDto);
+            }
+
+            _logger.LogInformation($"USer logged in", userForLoginDto.UserName);
+            var claims = new List<Claim>();
+
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach(var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = userForLoginDto.RememberMe,
+                    AllowRefresh = true,
+                    ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                });;
+            return Accepted();
+
         }
+
         [HttpOptions("logout-cookie")]
-        public Task<IActionResult> LogoutCookie()
+        [ResponseCache(CacheProfileName = "NoCache")]
+        public async Task<IActionResult> LogoutCookie()
         {
-            throw new NotImplementedException();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Accepted();
         }
+
         [HttpOptions("access-denied")]
         public IActionResult AccessDenied()
         {
