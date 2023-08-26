@@ -1,18 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RecipeHub.Domain;
 
 namespace RecipeHub.Infrastructure
 {
-    public class RecipeDBContext : DbContext
+    public class RecipeDBContext : IdentityDbContext<User>
     {
         public DbSet<Ingredient> Ingredients => Set<Ingredient>();
         public DbSet<Recipe> Recipes => Set<Recipe>();
-        public DbSet<User> Users =>Set <User>();
+        //public DbSet<User> Users =>Set <User>(); not necessary if user does not have extra properties
         public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
         public RecipeDBContext(DbContextOptions<RecipeDBContext> options):base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<RecipeIngredient>()
                 .HasKey(ri => new {ri.RecipeId, ri.IngredientId});
             modelBuilder.Entity<RecipeIngredient>()
