@@ -4,11 +4,12 @@ using RecipeHub.Domain;
 
 namespace RecipeHub.Infrastructure
 {
-    public class RecipeDBContext : IdentityDbContext<User>
+    public class RecipeDBContext : IdentityDbContext<User, Role, string>
     {
         public DbSet<Ingredient> Ingredients => Set<Ingredient>();
         public DbSet<Recipe> Recipes => Set<Recipe>();
         //public DbSet<User> Users =>Set <User>(); not necessary if user does not have extra properties
+        public override DbSet<Role> Roles => Set<Role>();
         public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
         public RecipeDBContext(DbContextOptions<RecipeDBContext> options):base(options) { }
 
@@ -27,6 +28,21 @@ namespace RecipeHub.Infrastructure
                 .WithMany(ri => ri.Recipes)
                 .HasForeignKey(ri => ri.IngredientId);
 
+            modelBuilder.Entity<Role>()
+                .HasData(new List<Role>
+                {
+                    new Role
+                    {
+                        Id = Guid.NewGuid().ToString(), Name = "Admin", NormalizedName = "ADMIN"
+                    },
+                    new Role
+                    {
+                        Id = Guid.NewGuid().ToString(), Name = "User", NormalizedName = "USER"
+                    }
+
+            });
+
+
             modelBuilder.Entity<Ingredient>()
                 .HasData(new List<Ingredient>()
                 {
@@ -43,22 +59,22 @@ namespace RecipeHub.Infrastructure
                         Id = 3, Name = "Cheese"
                     }
                 });
-            
-            modelBuilder.Entity<Recipe>()
-                .HasData(new List<Recipe>()
-                {
-                    new Recipe()
-                    {
-                        Id = 2,
-                        Calories = 1000,
-                        Name = "Milk with cheese",
-                        PreparationTimeMin = 1,
-                        PreparationTimeMax = 2,
-                        IngredientsText = "IngredientsText",
-                        RecipeText = "RecipeText",
-                        UserId = 0
-                    }
-                });
+
+            //modelBuilder.Entity<Recipe>()
+            //    .HasData(new List<Recipe>()
+            //    {
+            //        new Recipe()
+            //        {
+            //            Id = 2,
+            //            Calories = 1000,
+            //            Name = "Milk with cheese",
+            //            PreparationTimeMin = 1,
+            //            PreparationTimeMax = 2,
+            //            IngredientsText = "IngredientsText",
+            //            RecipeText = "RecipeText",
+            //            UserId = 0
+            //        }
+            //    });
 
             modelBuilder.Entity<RecipeIngredient>()
                 .HasData(new List<RecipeIngredient>()

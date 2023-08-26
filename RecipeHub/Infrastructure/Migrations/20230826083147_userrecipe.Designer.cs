@@ -12,8 +12,8 @@ using RecipeHub.Infrastructure;
 namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
-    [Migration("20230826075720_userTest")]
-    partial class userTest
+    [Migration("20230826083147_userrecipe")]
+    partial class userrecipe
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -224,25 +224,14 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasMaxLength(5000)
                         .HasColumnType("character varying(5000)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Recipes");
+                    b.HasIndex("UserId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 2,
-                            Calories = 1000,
-                            IngredientsText = "IngredientsText",
-                            Name = "Milk with cheese",
-                            PreparationTimeMax = 2,
-                            PreparationTimeMin = 1,
-                            RecipeText = "RecipeText",
-                            UserId = 0
-                        });
+                    b.ToTable("Recipes");
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.RecipeIngredient", b =>
@@ -385,6 +374,15 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
+                {
+                    b.HasOne("RecipeHub.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.RecipeIngredient", b =>

@@ -6,6 +6,9 @@ using RecipeHub.Infrastructure.Repositories;
 using System.Net;
 using System.Text.Json;
 using Serilog;
+using RecipeHub.Configuration.Extensions;
+using Microsoft.AspNetCore.Identity;
+using RecipeHub.Domain;
 
 namespace RecipeHub
 {
@@ -21,33 +24,18 @@ namespace RecipeHub
                 .WriteTo.Console()
                 .CreateBootstrapLogger(); 
 
-            builder.Services.AddDbContext<RecipeDBContext>(options =>
-            {
-                options.UseNpgsql(builder.Configuration.GetConnectionString("PGSQLDb"));
-                options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
-            });
+            builder.AddPersistence();
             
             builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             
-            builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
-
-            builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+            //builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
             
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-            
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policyBuilder =>
-                {
-                    policyBuilder
-                        .WithOrigins("http://localhost:3000", "http://localhost:5173")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                });
-            });
-            
-            
-            
+
+            builder.AddCors();
+
+
+
             // Add services to the container.
 
             builder.Services.AddControllers(configure =>
@@ -78,6 +66,36 @@ namespace RecipeHub
                 configuration.ReadFrom.Services(services);
 
             }, preserveStaticLogger: true);
+
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 12;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789;:,<.>/?-_=+!@#$%^&*()";
+                options.User.RequireUniqueEmail = true;
+
+            })
+                .AddEntityFrameworkStores<RecipeDBContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication()
+                .AddCookie(options =>
+                {
+                    options.Cookie.Name = "RecipeHub.Cookies";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SameSite = SameSiteMode.Strict;
+
+                    options.Events.OnRedirectToLogin = context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return Task.CompletedTask;
+
+                    };
+                });
 
             var app = builder.Build();
 
@@ -128,5 +146,6 @@ namespace RecipeHub
 
             app.Run();
         }
+
     }
 }
