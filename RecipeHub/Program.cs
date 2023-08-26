@@ -95,7 +95,11 @@ namespace RecipeHub
                         return Task.CompletedTask;
 
                     };
+                    options.LoginPath = "/api/users/login-cookie";
+                    options.LogoutPath = "/api/users/logout-cookie";
+                    options.AccessDeniedPath = "/api/users/access-denied";
                 });
+            builder.Services.AddAuthentication();
 
             var app = builder.Build();
 

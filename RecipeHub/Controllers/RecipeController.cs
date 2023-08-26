@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecipeHub.Domain;
@@ -10,6 +11,7 @@ namespace RecipeHub.Controllers
 {
     [Route("api/Recipe")]
     [ApiController]
+    //[Authorize]
     public class RecipeController: ControllerBase
     {
         private readonly IRecipeRepository _recipeRepository;

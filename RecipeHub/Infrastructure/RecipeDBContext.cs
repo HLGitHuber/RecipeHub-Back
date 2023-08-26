@@ -72,24 +72,24 @@ namespace RecipeHub.Infrastructure
             //            PreparationTimeMax = 2,
             //            IngredientsText = "IngredientsText",
             //            RecipeText = "RecipeText",
-            //            UserId = 0
+            //            UserId = 
             //        }
             //    });
 
-            modelBuilder.Entity<RecipeIngredient>()
-                .HasData(new List<RecipeIngredient>()
-                {
-                    new RecipeIngredient()
-                    {
-                        IngredientId = 1, // Milk
-                        RecipeId = 2
-                    },
-                    new RecipeIngredient()
-                    {
-                        IngredientId = 3, // Cheese
-                        RecipeId = 2
-                    }
-                });
+            //modelBuilder.Entity<RecipeIngredient>()
+            //    .HasData(new List<RecipeIngredient>()
+            //    {
+            //        new RecipeIngredient()
+            //        {
+            //            IngredientId = 1, // Milk
+            //            RecipeId = 2
+            //        },
+            //        new RecipeIngredient()
+            //        {
+            //            IngredientId = 3, // Cheese
+            //            RecipeId = 2
+            //        }
+            //    });
 
 
         }

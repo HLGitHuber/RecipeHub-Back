@@ -8,7 +8,7 @@ using RecipeHub.Infrastructure;
 
 #nullable disable
 
-namespace RecipeHub.Migrations
+namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
     partial class RecipeDBContextModelSnapshot : ModelSnapshot
@@ -218,18 +218,6 @@ namespace RecipeHub.Migrations
                     b.HasIndex("IngredientId");
 
                     b.ToTable("RecipeIngredients");
-
-                    b.HasData(
-                        new
-                        {
-                            RecipeId = 2,
-                            IngredientId = 1
-                        },
-                        new
-                        {
-                            RecipeId = 2,
-                            IngredientId = 3
-                        });
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.Role", b =>
@@ -260,13 +248,13 @@ namespace RecipeHub.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "9f65cbc7-ad7d-402f-9319-7bdff5d031a9",
+                            Id = "f3dada1c-f273-4657-b857-67d0334bad7a",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "afa8922a-9dc1-45d8-84e8-9e6858b2fb92",
+                            Id = "78896574-7949-43c1-a17b-70c2b1a2e0f4",
                             Name = "User",
                             NormalizedName = "USER"
                         });
