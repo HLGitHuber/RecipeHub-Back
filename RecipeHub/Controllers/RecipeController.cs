@@ -106,6 +106,28 @@ namespace RecipeHub.Controllers
 
         }
 
+        //Update
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeForUpdateDto recipeForUpdateDto)
+        {
+            var recipe = _mapper.Map<Recipe>(recipeForUpdateDto);
+            recipe.Id = id;
+
+            var success = await _recipeRepository.UpdateRecipe(recipe);
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+
+        }
+
+
         // DELETE api/recipe/1
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -120,7 +142,6 @@ namespace RecipeHub.Controllers
                 return NotFound();
             }
             return NoContent();
-
         }
     }
 }

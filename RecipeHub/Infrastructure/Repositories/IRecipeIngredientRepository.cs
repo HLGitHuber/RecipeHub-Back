@@ -10,7 +10,7 @@ namespace RecipeHub.Infrastructure.Repositories
         Task<ActionResult<List<string>>> GetIngredientNamesForRecipeId(int id);
         Task<RecipeIngredient> AddIngredientsToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO);
         Task<bool> DeleteAllIngredientsForRecipe(int id);
-        Task<bool> DeleteSingleIngredientFromRecipe([FromQuery] int recipeid, int ingredientid)
+        Task<bool> DeleteSingleIngredientFromRecipe([FromQuery] int recipeid, int ingredientid);
 
 
     }

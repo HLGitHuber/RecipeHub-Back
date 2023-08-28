@@ -11,6 +11,7 @@ namespace RecipeHub.Configuration.Mapper
             CreateMap<Recipe, RecipeDTO>();
             CreateMap<Recipe, RecipeForAddDto>().ReverseMap();
             CreateMap<Recipe, RecipeByIngredientsDTO>();
+            CreateMap<Recipe, RecipeForUpdateDto>().ReverseMap();
         }
     }
 }

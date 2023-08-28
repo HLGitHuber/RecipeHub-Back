@@ -64,6 +64,10 @@ namespace RecipeHub.Infrastructure.Repositories
         {
             var recipeIngredient = await _dbContext.RecipeIngredients
                 .FirstOrDefaultAsync(ri => ri.RecipeId == recipeid && ri.IngredientId == ingredientid);
+            if (recipeIngredient == null) 
+            {
+                return false;
+            }
 
             _dbContext.RecipeIngredients.Remove(recipeIngredient);
             await _dbContext.SaveChangesAsync();
