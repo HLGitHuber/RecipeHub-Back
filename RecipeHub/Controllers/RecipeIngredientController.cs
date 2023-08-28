@@ -90,10 +90,10 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<RecipeIngredientDTO>>> DeleteAllIngredientsForRecipe(int id)
+        public async Task<ActionResult<IEnumerable<RecipeIngredientDTO>>> DeleteAllIngredientsForRecipe(int recipeId)
         {
             var recipeIngredients = await _context.RecipeIngredients
-            .Where(ri => ri.RecipeId == id)
+            .Where(ri => ri.RecipeId == recipeId)
             .ToListAsync();
 
             if (recipeIngredients.Count == 0)

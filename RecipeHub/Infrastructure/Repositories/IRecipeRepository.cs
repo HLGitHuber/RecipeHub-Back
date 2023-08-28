@@ -8,7 +8,7 @@ namespace RecipeHub.Infrastructure.Repositories
         Task<Recipe?> GetRecipe(int id);
         Task AddRecipe(Recipe recipe);
         bool UpdateRecipe(Recipe recipe);
-        bool DeleteRecipe(int id);
+        Task<bool> DeleteRecipe(int id);
         Task<IEnumerable<Recipe>> GetRecipesByIngredientIDs(List<int> ingredientIDs);
         
     }

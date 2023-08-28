@@ -39,9 +39,19 @@ namespace RecipeHub.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public bool DeleteRecipe(int id)
+        public async Task<bool> DeleteRecipe(int recipeid)
         {
-            throw new NotImplementedException();
+            var recipe = await _dbContext
+                .Recipes
+                .FirstOrDefaultAsync(r=>r.Id == recipeid);
+            if (recipe is null)
+            {
+                return false;
+            }
+            _dbContext .Recipes .Remove(recipe);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<IEnumerable<Recipe>> GetRecipesByIngredientIDs(List<int> ingredientIDs)

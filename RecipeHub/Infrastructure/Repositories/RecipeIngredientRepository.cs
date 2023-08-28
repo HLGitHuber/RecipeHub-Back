@@ -7,7 +7,7 @@ using RecipeHub.Infrastructure.Repositories;
 
 namespace RecipeHub.Infrastructure.Repositories
 {
-    public class RecipeIngredientRepository
+    public class RecipeIngredientRepository: IRecipeIngredientRepository
     {
         private readonly RecipeDBContext _dbContext;
         private readonly IMapper _mapper;
@@ -50,10 +50,10 @@ namespace RecipeHub.Infrastructure.Repositories
 
             return newRecipeIngredient;
         }
-        public async Task<bool> DeleteAllIngredientsForRecipe(int id)
+        public async Task<bool> DeleteAllIngredientsForRecipe(int recipeid)
         {
             var recipeIngredients = await _dbContext.RecipeIngredients
-            .Where(ri => ri.RecipeId == id)
+            .Where(ri => ri.RecipeId == recipeid)
             .ToListAsync();
 
             _dbContext.RecipeIngredients.RemoveRange(recipeIngredients);

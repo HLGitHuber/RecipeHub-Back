@@ -13,13 +13,15 @@ namespace RecipeHub.Controllers
     public class RecipeController: ControllerBase
     {
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IRecipeIngredientRepository _recipeIngredientRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public RecipeController(IMapper mapper, IRecipeRepository recipeRepository, ILogger<Recipe> logger)
+        public RecipeController(IMapper mapper, IRecipeRepository recipeRepository,IRecipeIngredientRepository recipeIngredientRepository, ILogger<Recipe> logger)
         {
             _mapper = mapper;
             _recipeRepository = recipeRepository;
+            _recipeIngredientRepository = recipeIngredientRepository;
             _logger = logger;
         }
 
@@ -104,5 +106,21 @@ namespace RecipeHub.Controllers
 
         }
 
+        // DELETE api/recipe/1
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteRecipe(int id)
+        {
+            var deleteRecipe = await _recipeRepository.DeleteRecipe(id);
+            var deleteRecipeIngredients = await _recipeIngredientRepository.DeleteAllIngredientsForRecipe(id);
+            if (!deleteRecipe)
+            {
+                return NotFound();
+            }
+            return NoContent();
+
+        }
     }
 }
