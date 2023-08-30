@@ -67,27 +67,12 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddIngredientToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
-            if (recipeIngredientForAddDTO == null)
+            var newRecipeIngredient = await _recipeIngredientRepository.AddIngredientToRecipe(recipeIngredientForAddDTO);
+
+            if (newRecipeIngredient == null)
             {
                 return BadRequest("RecipeIngredient data is null.");
             }
-
-            var recipe = await _context.Recipes.FindAsync(recipeIngredientForAddDTO.RecipeId);
-            var ingredient = await _context.Ingredients.FindAsync(recipeIngredientForAddDTO.IngredientId);
-
-            if (recipe == null || ingredient == null)
-            {
-                return NotFound("Recipe or Ingredient not found.");
-            }
-
-            var newRecipeIngredient = new RecipeIngredient
-            {
-                Recipe = recipe,
-                Ingredient = ingredient
-            };
-
-            await _context.RecipeIngredients.AddAsync(newRecipeIngredient);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
