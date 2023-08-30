@@ -13,10 +13,21 @@ namespace RecipeHub.Controllers
     public class RecipeIngredientController: ControllerBase
     {
         private readonly RecipeDBContext _context;
-        public RecipeIngredientController(RecipeDBContext context)
+
+        private readonly IRecipeIngredientRepository _recipeIngredientRepository;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
+
+        public RecipeIngredientController(RecipeDBContext context, IRecipeIngredientRepository recipeIngredientRepository, IMapper mapper, ILogger logger)
         {
             _context = context;
+            _mapper = mapper;
+            _recipeIngredientRepository = recipeIngredientRepository;
+            _logger = logger;
         }
+
+
+
 
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -24,12 +35,9 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<int>>> GetAllIngredientIdsByRecipeId(int id)
         {
-            var ingredientIds = await _context.RecipeIngredients
-                .Where(i => i.RecipeId == id)
-                .Select(i => i.IngredientId)
-                .ToListAsync();
+            var ingredientIds = await _recipeIngredientRepository.GetAllIngredientIdsByRecipeId(id);
 
-            if (ingredientIds.Count == 0)
+            if (ingredientIds is null)
             {
                 return NotFound();
             }
@@ -42,12 +50,10 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<string>>> GetIngredientNamesForRecipeId(int id)
         {
-            var ingredientNames = await _context.RecipeIngredients
-                .Where(i => i.RecipeId == id)
-                .Select(i => i.Ingredient.Name)
-                .ToListAsync();
+            var ingredientNames = await _recipeIngredientRepository.GetIngredientNamesForRecipeId(id);
 
-            if (ingredientNames.Count == 0)
+
+            if (ingredientNames is null)
             {
                 return NotFound();
             }
@@ -59,7 +65,7 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddIngredientsToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
+        public async Task<IActionResult> AddIngredientToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
             if (recipeIngredientForAddDTO == null)
             {
@@ -90,18 +96,14 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<RecipeIngredientDTO>>> DeleteAllIngredientsForRecipe(int recipeId)
+        public async Task<IActionResult> DeleteAllIngredientsForRecipe(int recipeId)
         {
-            var recipeIngredients = await _context.RecipeIngredients
-            .Where(ri => ri.RecipeId == recipeId)
-            .ToListAsync();
-
-            if (recipeIngredients.Count == 0)
+            var deleteAllIngredients = await _recipeIngredientRepository.DeleteAllIngredientsForRecipe(recipeId);
+            if (!deleteAllIngredients)
             {
+
                 return NotFound();
             }
-            _context.RecipeIngredients.RemoveRange(recipeIngredients);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -111,17 +113,12 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> DeleteSingleIngredientFromRecipe([FromQuery] int recipeid, int ingredientid)
         {
-            var recipeIngredient = await _context.RecipeIngredients
-                .FirstOrDefaultAsync(ri => ri.RecipeId == recipeid && ri.IngredientId == ingredientid);
+            var recipeIngredient = await _recipeIngredientRepository.DeleteSingleIngredientFromRecipe(recipeid, ingredientid);
 
-            if (recipeIngredient == null)
+            if (recipeIngredient == false)
             {
                 return NotFound();
             }
-
-            _context.RecipeIngredients.Remove(recipeIngredient);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
 

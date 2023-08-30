@@ -34,7 +34,7 @@ namespace RecipeHub.Infrastructure.Repositories
 
             return (ingredientNames);
         }
-        public async Task<RecipeIngredient> AddIngredientsToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
+        public async Task<RecipeIngredient> AddIngredientToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
             var recipe = await _dbContext.Recipes.FindAsync(recipeIngredientForAddDTO.RecipeId);
             var ingredient = await _dbContext.Ingredients.FindAsync(recipeIngredientForAddDTO.IngredientId);
