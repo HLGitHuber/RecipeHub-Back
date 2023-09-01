@@ -34,14 +34,40 @@ namespace RecipeHub.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public bool UpdateRecipe(Recipe recipe)
+        public async Task<bool> UpdateRecipe(Recipe recipe)
         {
-            throw new NotImplementedException();
+            var recipeInDb = await _dbContext
+                .Recipes
+                .FirstOrDefaultAsync(r=>r.Id==recipe.Id);
+            if (recipeInDb is null)
+            { 
+                return false;
+            }
+            recipeInDb.Name = recipe.Name;
+            recipeInDb.Ingredients=recipe.Ingredients;
+            recipeInDb.RecipeText=recipe.RecipeText;
+            recipeInDb.PreparationTimeMin=recipe.PreparationTimeMin;
+            recipeInDb.PreparationTimeMax=recipe.PreparationTimeMax;
+            recipeInDb.Calories=recipe.Calories;
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
 
-        public bool DeleteRecipe(int id)
+        public async Task<bool> DeleteRecipe(int recipeid)
         {
-            throw new NotImplementedException();
+            var recipe = await _dbContext
+                .Recipes
+                .FirstOrDefaultAsync(r=>r.Id == recipeid);
+            if (recipe is null)
+            {
+                return false;
+            }
+            _dbContext .Recipes .Remove(recipe);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<IEnumerable<Recipe>> GetRecipesByIngredientIDs(List<int> ingredientIDs)

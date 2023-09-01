@@ -15,13 +15,15 @@ namespace RecipeHub.Controllers
     public class RecipeController: ControllerBase
     {
         private readonly IRecipeRepository _recipeRepository;
+        private readonly IRecipeIngredientRepository _recipeIngredientRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public RecipeController(IMapper mapper, IRecipeRepository recipeRepository, ILogger<Recipe> logger)
+        public RecipeController(IMapper mapper, IRecipeRepository recipeRepository,IRecipeIngredientRepository recipeIngredientRepository, ILogger<Recipe> logger)
         {
             _mapper = mapper;
             _recipeRepository = recipeRepository;
+            _recipeIngredientRepository = recipeIngredientRepository;
             _logger = logger;
         }
 
@@ -48,7 +50,7 @@ namespace RecipeHub.Controllers
             
             if (recipe == null)
             {
-                _logger.LogWarning($"Recipe with id {id} wasn't found");
+                _logger.LogWarning($"Recipe with id {id} not found");
                 return NotFound();
             }
             
@@ -62,8 +64,10 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<RecipeDTO>>> GetRecipesByIngredientIDs([FromQuery] List<int> ingredientIDs)
         {
+            _logger.LogInformation($"Getting recipes by ingredient id");
             if (ingredientIDs == null || ingredientIDs.Count == 0)
             {
+                _logger.LogInformation($"No ingredient IDs provided");
                 return BadRequest("No ingredient IDs provided.");
             }
 
@@ -90,7 +94,6 @@ namespace RecipeHub.Controllers
             if (!ModelState.IsValid)
             {
                 _logger.LogError("Adding recipe failed because of bad request");
-
                 return BadRequest(ModelState);
             }
 
@@ -106,5 +109,47 @@ namespace RecipeHub.Controllers
 
         }
 
+        //Update
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeForUpdateDto recipeForUpdateDto)
+        {
+            _logger.LogInformation($"Updating recipe with ID {id}");
+            var recipe = _mapper.Map<Recipe>(recipeForUpdateDto);
+            recipe.Id = id;
+
+            var success = await _recipeRepository.UpdateRecipe(recipe);
+            if (!success)
+            {
+                _logger.LogInformation($"Attempt to update recipe with ID {id} failed - no recipe found");
+                return NotFound();
+            }
+            _logger.LogInformation($"Recipe with ID {id} has been updated");
+            return NoContent();
+
+        }
+
+
+        // DELETE api/recipe/1
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteRecipe(int id)
+        {
+            _logger.LogInformation($"Attempt to delete recipe with ID {id}");
+            var deleteRecipe = await _recipeRepository.DeleteRecipe(id);
+            var deleteRecipeIngredients = await _recipeIngredientRepository.DeleteAllIngredientsForRecipe(id);
+            if (!deleteRecipe)
+            {
+                _logger.LogInformation($"Attempt to delete recipe with ID {id} failed - no recipe found");
+                return NotFound();
+            }
+            _logger.LogInformation($"Recipe with ID {id} deleted");
+            return NoContent();
+        }
     }
 }
