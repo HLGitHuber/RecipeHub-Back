@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using RecipeHub.Infrastructure.Repositories;
 using System.Net;
-using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using Serilog;
 
