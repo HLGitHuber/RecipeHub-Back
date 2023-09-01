@@ -51,11 +51,11 @@ namespace RecipeHub.Controllers
 
             if(!result.Succeeded)
             {
-                _logger.LogWarning($"User {userForRegistrationDto.UserName} could not be assiged roles");
+                _logger.LogWarning($"User {userForRegistrationDto.UserName} could not be assigned roles");
                 var errors = result.Errors.Select(e => e.Description);
                 return BadRequest(new { Errors = errors });
             }
-            _logger.LogWarning($"User {userForRegistrationDto.UserName} assiged to roles");
+            _logger.LogWarning($"User {userForRegistrationDto.UserName} assigned to roles");
             return Accepted($"User {user.UserName} created");
         }
 
@@ -113,6 +113,8 @@ namespace RecipeHub.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Accepted();
         }
+        
+        
 
         [HttpOptions("access-denied")]
         public IActionResult AccessDenied()
