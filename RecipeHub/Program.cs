@@ -4,10 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using RecipeHub.Infrastructure.Repositories;
 using System.Net;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using RecipeHub.Configuration.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using RecipeHub.Configuration.Options;
 using RecipeHub.Domain;
 
 namespace RecipeHub
@@ -67,7 +74,7 @@ namespace RecipeHub
 
             }, preserveStaticLogger: true);
 
-            builder.Services.AddIdentity<User, IdentityRole>(options =>
+            builder.Services.AddIdentity<User, Role>(options =>
             {
                 options.Password.RequiredLength = 12;
                 options.Password.RequireDigit = true;
@@ -82,7 +89,26 @@ namespace RecipeHub
                 .AddEntityFrameworkStores<RecipeDBContext>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.AddOptions<JwtConfiguration>()
+                .Bind(builder.Configuration.GetSection(JwtConfiguration.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
             builder.Services.AddAuthentication()
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
+                        
+                        ValidateAudience = true,
+                        ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
+                        
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!))
+                    };
+                })
                 .AddCookie(options =>
                 {
                     options.Cookie.Name = "RecipeHub.Cookies";
@@ -99,7 +125,23 @@ namespace RecipeHub
                     options.LogoutPath = "/api/users/logout-cookie";
                     options.AccessDeniedPath = "/api/users/access-denied";
                 });
-            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization(options =>
+            {
+                var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    JwtBearerDefaults.AuthenticationScheme);
+                defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
+
+                options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+                
+                options.AddPolicy("AdminOnly", policy =>
+                {
+                    policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme,
+                        JwtBearerDefaults.AuthenticationScheme);
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimTypes.Role, "Admin");
+                });
+            });
 
             var app = builder.Build();
 
