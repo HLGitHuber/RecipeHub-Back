@@ -28,7 +28,7 @@ namespace RecipeHub.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpOptions("regiester")]
+        [HttpOptions("register")]
         [ResponseCache(CacheProfileName = "NoCache")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
