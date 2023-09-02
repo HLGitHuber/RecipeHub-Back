@@ -81,118 +81,62 @@ namespace RecipeHub.Controllers
             return Accepted($"User {user.UserName} created");
         }
 
-        [HttpOptions("login-cookie")]
+        [HttpOptions("login-jwt")]
         [ResponseCache(CacheProfileName = "NoCache")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)] //make a choice 400 vs 401
-        public async Task<IActionResult> LoginCookie([FromBody] UserForLoginDto userForLoginDto)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> LoginJwt([FromBody] UserForLoginWithTokenDto userForLoginDto)
         {
             var user = await _userManager.FindByNameAsync(userForLoginDto.UserName);
-            if (user == null)
+
+            if (user is null)
             {
-                _logger.LogWarning($"User not found", userForLoginDto.UserName);
-                return Unauthorized(userForLoginDto);
-            }
-            var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
-            if (!result.Succeeded)
-            {
-                _logger.LogWarning($"Wrong Password", userForLoginDto.UserName);
+                _logger.LogWarning("User {userName} not found.", userForLoginDto.UserName);
+
                 return Unauthorized(userForLoginDto);
             }
 
-            _logger.LogInformation($"USer logged in", userForLoginDto.UserName);
+            var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
+
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning("User {userName} login failed.", userForLoginDto.UserName);
+
+                return Unauthorized(userForLoginDto);
+            }
+
+            _logger.LogInformation("User {userName} logged in.", userForLoginDto.UserName);
+
             var claims = new List<Claim>();
 
             claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName!));
 
             var roles = await _userManager.GetRolesAsync(user);
-            foreach(var role in roles)
+
+            foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            // Create JWT token
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = userForLoginDto.RememberMe,
-                    AllowRefresh = true,
-                    ExpiresUtc = DateTime.UtcNow.AddDays(1)
-                });;
-            return Accepted();
+            var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.SigningKey)), SecurityAlgorithms.HmacSha256);
 
+            var jwtObject = new JwtSecurityToken(
+                issuer: _jwtConfiguration.Issuer,
+                audience: _jwtConfiguration.Audience,
+                claims: claims,
+                expires: DateTime.Now.AddSeconds(300), // 5 minutes, tokens should be short-lived
+                signingCredentials: signingCredentials);
+
+            var tokenToReturn = new JwtSecurityTokenHandler().WriteToken(jwtObject);
+
+            _logger.LogInformation("User {userName} logged in.", userForLoginDto.UserName);
+
+            return Accepted(new { Token = tokenToReturn });
         }
-
-        [HttpOptions("logout-cookie")]
-        [ResponseCache(CacheProfileName = "NoCache")]
-        public async Task<IActionResult> LogoutCookie()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Accepted();
-        }
-        
-        
-        [HttpOptions("login-jwt")]
-    [ResponseCache(CacheProfileName = "NoCache")]
-    [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> LoginJwt([FromBody] UserForLoginWithTokenDto userForLoginDto)
-    {
-        var user = await _userManager.FindByNameAsync(userForLoginDto.UserName);
-
-        if (user is null)
-        {
-            _logger.LogWarning("User {userName} not found.", userForLoginDto.UserName);
-
-            return Unauthorized(userForLoginDto);
-        }
-
-        var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
-
-        if (!result.Succeeded)
-        {
-            _logger.LogWarning("User {userName} login failed.", userForLoginDto.UserName);
-
-            return Unauthorized(userForLoginDto);
-        }
-
-        _logger.LogInformation("User {userName} logged in.", userForLoginDto.UserName);
-
-        var claims = new List<Claim>();
-
-        claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-        claims.Add(new Claim(ClaimTypes.Name, user.UserName!));
-
-        var roles = await _userManager.GetRolesAsync(user);
-
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        // Create JWT token
-
-        var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.SigningKey)), SecurityAlgorithms.HmacSha256);
-
-        var jwtObject = new JwtSecurityToken(
-            issuer: _jwtConfiguration.Issuer,
-            audience: _jwtConfiguration.Audience,
-            claims: claims,
-            expires: DateTime.Now.AddSeconds(300), // 5 minutes, tokens should be short-lived
-            signingCredentials: signingCredentials);
-
-        var tokenToReturn = new JwtSecurityTokenHandler().WriteToken(jwtObject);
-
-        _logger.LogInformation("User {userName} logged in.", userForLoginDto.UserName);
-
-        return Accepted(new { Token = tokenToReturn });
-    }
         
 
         [HttpOptions("access-denied")]
