@@ -101,34 +101,19 @@ namespace RecipeHub
                     {
                         ValidateIssuer = true,
                         ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
-                        
+
                         ValidateAudience = true,
                         ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
-                        
+
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!))
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(
+                                Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!))
                     };
-                })
-                .AddCookie(options =>
-                {
-                    options.Cookie.Name = "RecipeHub.Cookies";
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.SameSite = SameSiteMode.Strict;
-
-                    options.Events.OnRedirectToLogin = context =>
-                    {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        return Task.CompletedTask;
-
-                    };
-                    options.LoginPath = "/api/users/login-cookie";
-                    options.LogoutPath = "/api/users/logout-cookie";
-                    options.AccessDeniedPath = "/api/users/access-denied";
                 });
             builder.Services.AddAuthorization(options =>
             {
                 var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
                     JwtBearerDefaults.AuthenticationScheme);
                 defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
 
