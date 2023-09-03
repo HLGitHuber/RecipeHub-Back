@@ -35,10 +35,13 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<int>>> GetAllIngredientIdsByRecipeId(int id)
         {
+            _logger.LogInformation($"Getting ingredients with id {id}");
+
             var ingredientIds = await _recipeIngredientRepository.GetAllIngredientIdsByRecipeId(id);
 
             if (ingredientIds is null)
             {
+                _logger.LogWarning($"No ingredients were found with id {id}");
                 return NotFound();
             }
 
@@ -50,11 +53,14 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<string>>> GetIngredientNamesForRecipeId(int id)
         {
+            _logger.LogInformation($"Getting ingredients names for recipe with id {id}");
+
             var ingredientNames = await _recipeIngredientRepository.GetIngredientNamesForRecipeId(id);
 
 
             if (ingredientNames is null)
             {
+                _logger.LogWarning($"No ingredients names for recipe with id {id} were found");
                 return NotFound();
             }
 
@@ -67,10 +73,13 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddIngredientToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
+            _logger.LogInformation("Adding new ingredient for recipe");
+
             var newRecipeIngredient = await _recipeIngredientRepository.AddIngredientToRecipe(recipeIngredientForAddDTO);
 
             if (newRecipeIngredient == null)
             {
+                _logger.LogWarning($"Recipe wasn't found because of bad request");
                 return BadRequest("RecipeIngredient data is null.");
             }
 
@@ -83,10 +92,12 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAllIngredientsForRecipe(int recipeId)
         {
+            _logger.LogInformation($"Deleting all ingredients for recipe with id {recipeId}");
+
             var deleteAllIngredients = await _recipeIngredientRepository.DeleteAllIngredientsForRecipe(recipeId);
             if (!deleteAllIngredients)
             {
-
+                _logger.LogWarning($"Recipe wasn't found");
                 return NotFound();
             }
             return NoContent();
