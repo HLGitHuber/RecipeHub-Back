@@ -4,8 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using RecipeHub.Infrastructure.Repositories;
 using System.Net;
+
+using System.Security.Claims;
+using System.Text;
+
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Serilog;
+using RecipeHub.Configuration.Extensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using RecipeHub.Configuration.Options;
+using RecipeHub.Domain;
 
 namespace RecipeHub
 {
@@ -21,33 +33,18 @@ namespace RecipeHub
                 .WriteTo.Console()
                 .CreateBootstrapLogger(); 
 
-            builder.Services.AddDbContext<RecipeDBContext>(options =>
-            {
-                options.UseNpgsql(builder.Configuration.GetConnectionString("PGSQLDb"));
-                options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
-            });
+            builder.AddPersistence();
             
             builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             
-            builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
-
-            builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+            //builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
             
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-            
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policyBuilder =>
-                {
-                    policyBuilder
-                        .WithOrigins("http://localhost:3000", "http://localhost:5173")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                });
-            });
-            
-            
-            
+
+            builder.AddCors();
+
+
+
             // Add services to the container.
 
             builder.Services.AddControllers(configure =>
@@ -78,6 +75,60 @@ namespace RecipeHub
                 configuration.ReadFrom.Services(services);
 
             }, preserveStaticLogger: true);
+
+            builder.Services.AddIdentity<User, Role>(options =>
+            {
+                options.Password.RequiredLength = 12;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789;:,<.>/?-_=+!@#$%^&*()";
+                options.User.RequireUniqueEmail = true;
+
+            })
+                .AddEntityFrameworkStores<RecipeDBContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddOptions<JwtConfiguration>()
+                .Bind(builder.Configuration.GetSection(JwtConfiguration.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            builder.Services.AddAuthentication()
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
+
+                        ValidateAudience = true,
+                        ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
+
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(
+                                Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!))
+                    };
+                });
+            builder.Services.AddAuthorization(options =>
+            {
+                var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
+                    JwtBearerDefaults.AuthenticationScheme);
+                defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
+
+                options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+                
+                options.AddPolicy("AdminOnly", policy =>
+                {
+                    policy.AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme,
+                        JwtBearerDefaults.AuthenticationScheme);
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimTypes.Role, "Admin");
+                });
+            });
 
             var app = builder.Build();
 
@@ -128,5 +179,6 @@ namespace RecipeHub
 
             app.Run();
         }
+
     }
 }

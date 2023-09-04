@@ -17,8 +17,9 @@ namespace RecipeHub.Domain
         [MaxLength(5000)]
         public string RecipeText { get; set; }
         public int Calories { get; set; }
-        [Required]
-        public int UserId { get; set; }
+        public User? User { get; set; }
+        [ForeignKey(nameof(User))]
+        public string? UserId { get; set; }
         [Required]
         public ICollection<RecipeIngredient> Ingredients { get; set; }
     }

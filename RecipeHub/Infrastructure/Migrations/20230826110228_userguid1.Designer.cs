@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RecipeHub.Infrastructure;
@@ -11,9 +12,11 @@ using RecipeHub.Infrastructure;
 namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
-    partial class RecipeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230826110228_userguid1")]
+    partial class userguid1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -248,13 +251,13 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f9994c74-196f-4d09-a4f7-7a5f71f84774",
+                            Id = "f3dada1c-f273-4657-b857-67d0334bad7a",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "191981b6-fedd-4509-a0b2-f0b3a015f5d0",
+                            Id = "78896574-7949-43c1-a17b-70c2b1a2e0f4",
                             Name = "User",
                             NormalizedName = "USER"
                         });
