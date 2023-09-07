@@ -37,7 +37,12 @@ namespace RecipeHub
             
             builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             
-            //builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+            builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+            
+            builder.Services.AddScoped<IRecipeIngredientRepository, RecipeIngredientRepository>();
+
+            builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
+
             
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
