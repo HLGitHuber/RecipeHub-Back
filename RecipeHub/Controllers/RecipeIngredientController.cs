@@ -18,7 +18,7 @@ namespace RecipeHub.Controllers
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public RecipeIngredientController(RecipeDBContext context, IRecipeIngredientRepository recipeIngredientRepository, IMapper mapper, ILogger logger)
+        public RecipeIngredientController(RecipeDBContext context, IRecipeIngredientRepository recipeIngredientRepository, IMapper mapper, ILogger<RecipeIngredient> logger)
         {
             _context = context;
             _mapper = mapper;
