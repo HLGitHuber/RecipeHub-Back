@@ -13,9 +13,7 @@ namespace RecipeHub.DTO_s
         [MaxLength(5000)]
         public string IngredientsText { get; set; }
         [MaxLength(5000)]
-        public string RecipeText { get; set; }
+        public string? RecipeText { get; set; }
         public int Calories { get; set; }
-        [Required]
-        public string UserId { get; set; }
     }
 }
