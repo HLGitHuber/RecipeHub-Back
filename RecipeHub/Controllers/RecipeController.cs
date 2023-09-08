@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,9 @@ namespace RecipeHub.Controllers
 
             var recipes = await _recipeRepository.GetRecipes();
 
-            return Ok(recipes);
+            var recipesAllDto = _mapper.Map<IEnumerable<RecipesAllDto>>(recipes);
+            
+            return Ok(recipesAllDto);
         }
         
         [HttpGet("{id:int}")]
@@ -80,6 +83,7 @@ namespace RecipeHub.Controllers
         }
         
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -100,11 +104,13 @@ namespace RecipeHub.Controllers
 
             var recipe = _mapper.Map<Recipe>(recipeForAddDto);
 
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            recipe.UserId = userIdClaim!;
+
             await _recipeRepository.AddRecipe(recipe);
 
             _logger.LogInformation($"New recipe added with id {recipe.Id}");
-
-
+            
             return CreatedAtAction(nameof(GetAllRecipes),
                 new { id = recipe.Id }, recipe);
 
