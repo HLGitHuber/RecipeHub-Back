@@ -15,6 +15,6 @@ namespace RecipeHub.DTO_s
         public string RecipeText { get; set; }
         public int Calories { get; set; }
         [Required]
-        public int UserId { get; set; }
+        public string? UserId { get; set; }
     }
 }
