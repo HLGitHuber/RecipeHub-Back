@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using RecipeHub.Domain;
 
 namespace RecipeHub.DTO_s
 {
@@ -14,6 +16,7 @@ namespace RecipeHub.DTO_s
         [Required]
         [MaxLength(64)]
         public string Password { get; set; } = string.Empty;
-        public ICollection<string> Roles { get; set; }= new List<string> ();
+        [JsonIgnore]
+        public ICollection<string> Roles { get; set; }= new List<string> {"User"};
     }
 }
