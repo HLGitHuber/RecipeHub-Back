@@ -8,7 +8,7 @@ namespace RecipeHub.Configuration.Mapper
     {
         public RecipeProfile()
         {
-            CreateMap<Recipe, RecipeDTO>();
+            CreateMap<Recipe, RecipeDTO>().ReverseMap();
             CreateMap<Recipe, RecipesAllDto>().ReverseMap();
             CreateMap<Recipe, RecipeForAddDto>().ReverseMap();
             CreateMap<Recipe, RecipeByIngredientsDTO>();
