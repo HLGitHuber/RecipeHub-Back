@@ -81,10 +81,11 @@ namespace RecipeHub.Controllers
             return Accepted($"User {user.UserName} created");
         }
 
-        [HttpOptions("login-jwt")]
+        [HttpOptions("login")]
         [ResponseCache(CacheProfileName = "NoCache")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginJwt([FromBody] UserForLoginWithTokenDto userForLoginDto)
         {
