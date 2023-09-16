@@ -71,7 +71,7 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddIngredientToRecipe([FromQuery] RecipeIngredientForAddDto recipeIngredientForAddDTO)
+        public async Task<IActionResult> AddIngredientToRecipe([FromBody] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
             _logger.LogInformation("Adding new ingredient for recipe");
 
