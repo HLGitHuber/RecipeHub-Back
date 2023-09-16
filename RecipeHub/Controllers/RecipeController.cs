@@ -82,7 +82,7 @@ namespace RecipeHub.Controllers
             return Ok(recipesDto);
         }
         
-        [HttpPost]
+        [HttpPost("add-recipe")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
