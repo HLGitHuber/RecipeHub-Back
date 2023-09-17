@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecipeHub.Domain;
@@ -68,11 +70,32 @@ namespace RecipeHub.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddIngredientToRecipe([FromBody] RecipeIngredientForAddDto recipeIngredientForAddDTO)
         {
+            var recipeUserId = await _context.Recipes
+                .Where(r => r.Id == recipeIngredientForAddDTO.RecipeId)
+                .Select(r => r.UserId)
+                .FirstOrDefaultAsync();
+
+            if (recipeUserId is null)
+            {
+                _logger.LogWarning($"Recipe with ID {recipeIngredientForAddDTO.RecipeId} not found.");
+                return NotFound();
+            }
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (recipeUserId != userIdClaim)
+            {
+                _logger.LogWarning($"User is not authorized to modify recipe with ID {recipeIngredientForAddDTO.RecipeId}.");
+                return Unauthorized();
+            }
+
             _logger.LogInformation("Adding new ingredient for recipe");
 
             var newRecipeIngredient = await _recipeIngredientRepository.AddIngredientToRecipe(recipeIngredientForAddDTO);
