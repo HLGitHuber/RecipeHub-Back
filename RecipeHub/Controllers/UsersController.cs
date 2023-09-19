@@ -129,7 +129,7 @@ namespace RecipeHub.Controllers
                 issuer: _jwtConfiguration.Issuer,
                 audience: _jwtConfiguration.Audience,
                 claims: claims,
-                expires: DateTime.Now.AddSeconds(300), // 5 minutes, tokens should be short-lived
+                expires: DateTime.Now.AddHours(5),
                 signingCredentials: signingCredentials);
 
             var tokenToReturn = new JwtSecurityTokenHandler().WriteToken(jwtObject);
