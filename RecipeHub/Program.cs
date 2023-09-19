@@ -118,7 +118,7 @@ namespace RecipeHub
 
             builder.Services.AddIdentity<User, Role>(options =>
             {
-                options.Password.RequiredLength = 12;
+                options.Password.RequiredLength = 8;
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
@@ -150,7 +150,10 @@ namespace RecipeHub
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey =
                             new SymmetricSecurityKey(
-                                Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!))
+                                Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SigningKey"]!)),
+
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
                     };
                 });
             builder.Services.AddAuthorization(options =>
