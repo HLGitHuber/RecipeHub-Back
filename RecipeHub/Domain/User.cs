@@ -7,6 +7,6 @@ namespace RecipeHub.Domain
 {
     public class User: IdentityUser
     {
-
+        public ICollection<UserFavouriteRecipes> FavouriteRecipes { get; set; }
     }
 }
