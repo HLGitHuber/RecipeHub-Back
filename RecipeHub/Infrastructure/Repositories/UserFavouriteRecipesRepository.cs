@@ -29,15 +29,24 @@ namespace RecipeHub.Infrastructure.Repositories
             var user = await _dbContext.Users.FindAsync(userId);
             var recipe = await _dbContext.Recipes.FindAsync(recipeId);
 
-            if (user != null && recipe != null)
+            var favouriteRecipe = new UserFavouriteRecipe
             {
-                if (!user.FavouriteRecipes.Any(uf => uf.RecipeId == recipeId))
-                {
-                    user.FavouriteRecipes.Add(new UserFavouriteRecipes { UserId = userId, RecipeId = recipeId });
-                    await _dbContext.SaveChangesAsync();
-                    return true;
-                }
-            }
+                User = user,
+                Recipe = recipe,
+            };
+
+            await _dbContext.UserFavouriteRecipes.AddAsync(favouriteRecipe);
+            await _dbContext.SaveChangesAsync();
+
+            //if (user != null && recipe != null)
+            //{
+            //    if (!user.FavouriteRecipes.Any(uf => uf.RecipeId == recipeId))
+            //    {
+            //        user.FavouriteRecipes.Add(new UserFavouriteRecipes { UserId = userId, RecipeId = recipeId });
+            //        await _dbContext.SaveChangesAsync();
+            //        return true;
+            //    }
+            //}
             return false;
         }
 

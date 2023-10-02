@@ -12,6 +12,7 @@ namespace RecipeHub.Infrastructure
         public override DbSet<Role> Roles => Set<Role>();
         public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
         public RecipeDBContext(DbContextOptions<RecipeDBContext> options):base(options) { }
+        public DbSet<UserFavouriteRecipe> UserFavouriteRecipes => Set<UserFavouriteRecipe>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,6 +43,16 @@ namespace RecipeHub.Infrastructure
 
             });
 
+            modelBuilder.Entity<UserFavouriteRecipe>()
+                .HasKey(uf => new { uf.UserId, uf.RecipeId });
+            modelBuilder.Entity<UserFavouriteRecipe>()
+                .HasOne(uf => uf.User)
+                .WithMany(u => u.FavouriteRecipes)
+                .HasForeignKey(uf => uf.UserId);
+            modelBuilder.Entity<UserFavouriteRecipe>()
+                .HasOne(uf => uf.Recipe)
+                .WithMany(r => r.UsersFavoritedBy)
+                .HasForeignKey(uf => uf.RecipeId);
         }
     }
 }

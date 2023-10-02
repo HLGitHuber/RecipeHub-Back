@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace RecipeHub.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class userguid1 : Migration
+    public partial class trialNewMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -181,7 +181,6 @@ namespace RecipeHub.Infrastructure.Migrations
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     PreparationTimeMin = table.Column<int>(type: "integer", nullable: false),
                     PreparationTimeMax = table.Column<int>(type: "integer", nullable: false),
-                    IngredientsText = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     RecipeText = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     Calories = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: true)
@@ -220,23 +219,37 @@ namespace RecipeHub.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserFavouriteRecipes",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RecipeId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFavouriteRecipes", x => new { x.UserId, x.RecipeId });
+                    table.ForeignKey(
+                        name: "FK_UserFavouriteRecipes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFavouriteRecipes_Recipes_RecipeId",
+                        column: x => x.RecipeId,
+                        principalTable: "Recipes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "78896574-7949-43c1-a17b-70c2b1a2e0f4", null, "User", "USER" },
-                    { "f3dada1c-f273-4657-b857-67d0334bad7a", null, "Admin", "ADMIN" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Ingredients",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Milk" },
-                    { 2, "Butter" },
-                    { 3, "Cheese" }
+                    { "85d6ab39-efd2-4eae-a769-84beae2ff362", null, "Admin", "ADMIN" },
+                    { "8e268e3c-6c21-4922-8320-126e67677bb2", null, "User", "USER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -285,6 +298,11 @@ namespace RecipeHub.Infrastructure.Migrations
                 name: "IX_Recipes_UserId",
                 table: "Recipes",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavouriteRecipes_RecipeId",
+                table: "UserFavouriteRecipes",
+                column: "RecipeId");
         }
 
         /// <inheritdoc />
@@ -307,6 +325,9 @@ namespace RecipeHub.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "RecipeIngredients");
+
+            migrationBuilder.DropTable(
+                name: "UserFavouriteRecipes");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

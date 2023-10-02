@@ -26,11 +26,11 @@ namespace RecipeHub.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetUserFavouriteRecipes(string userId)
+        public async Task<IActionResult> GetUserFavouriteRecipes(string userId)
         {
             _logger.LogInformation($"Getting all favourite recipes for user with id {userId}");
 
-            var favouriteRecipes = _repository.GetUserFavouriteRecipesAsync(userId);
+            var favouriteRecipes = await _repository.GetUserFavouriteRecipesAsync(userId);
             var recipesAllDto = _mapper.Map<IEnumerable<RecipesAllDto>>(favouriteRecipes);
             return Ok(recipesAllDto);
         }

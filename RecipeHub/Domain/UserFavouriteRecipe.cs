@@ -1,6 +1,6 @@
 ﻿namespace RecipeHub.Domain
 {
-    public class UserFavouriteRecipes
+    public class UserFavouriteRecipe
     {
         public string UserId { get; set; }
         public User User { get; set; }
