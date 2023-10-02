@@ -226,13 +226,13 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "36600278-ce8b-4a02-af4e-1003682632c7",
+                            Id = "85d6ab39-efd2-4eae-a769-84beae2ff362",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "00102d82-c395-42d8-9a4f-63861edb003a",
+                            Id = "8e268e3c-6c21-4922-8320-126e67677bb2",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -300,6 +300,21 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.UserFavouriteRecipes", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RecipeId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("UserFavouriteRecipes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -381,6 +396,25 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("RecipeHub.Domain.UserFavouriteRecipes", b =>
+                {
+                    b.HasOne("RecipeHub.Domain.Recipe", "Recipe")
+                        .WithMany("UsersFavoritedBy")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecipeHub.Domain.User", "User")
+                        .WithMany("FavouriteRecipes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RecipeHub.Domain.Ingredient", b =>
                 {
                     b.Navigation("Recipes");
@@ -389,6 +423,13 @@ namespace RecipeHub.Infrastructure.Migrations
             modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
                 {
                     b.Navigation("Ingredients");
+
+                    b.Navigation("UsersFavoritedBy");
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.User", b =>
+                {
+                    b.Navigation("FavouriteRecipes");
                 });
 #pragma warning restore 612, 618
         }

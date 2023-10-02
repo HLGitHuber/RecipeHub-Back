@@ -20,5 +20,6 @@ namespace RecipeHub.Domain
         public string? UserId { get; set; }
         [Required]
         public ICollection<RecipeIngredient> Ingredients { get; set; }
+        public ICollection<UserFavouriteRecipe> UsersFavoritedBy { get; set; }
     }
 }
