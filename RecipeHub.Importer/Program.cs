@@ -13,7 +13,7 @@ namespace RecipeHub.Importer
         static async Task Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory) // Adjust the path as needed
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json")
                 .Build();
 
