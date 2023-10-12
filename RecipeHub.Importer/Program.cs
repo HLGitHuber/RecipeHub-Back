@@ -46,6 +46,14 @@ namespace RecipeHub.Importer
 
             foreach (var ingredientData in ingredientDataResponse)
             {
+                var existingIngredient =
+                    await dbContext.Ingredients.FirstOrDefaultAsync(i => i.Name == ingredientData.strIngredient);
+
+                if (existingIngredient != null)
+                {
+                    continue;
+                }
+
                 var ingredient = new Ingredient()
                 {
                     Name = ingredientData.strIngredient
