@@ -44,7 +44,10 @@ namespace RecipeHub
 
             builder.Services.AddScoped<IIngredientsRepository, IngredientsRepository>();
 
-            
+            builder.Services.AddScoped<IUserFavouriteRecipesRepository, UserFavouriteRecipesRepository>();
+
+
+
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             builder.AddCors();
@@ -156,6 +159,7 @@ namespace RecipeHub
                         ClockSkew = TimeSpan.Zero
                     };
                 });
+
             builder.Services.AddAuthorization(options =>
             {
                 var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(

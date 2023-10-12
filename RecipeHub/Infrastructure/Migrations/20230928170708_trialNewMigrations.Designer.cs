@@ -12,8 +12,8 @@ using RecipeHub.Infrastructure;
 namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeDBContext))]
-    [Migration("20230826110228_userguid1")]
-    partial class userguid1
+    [Migration("20230928170708_trialNewMigrations")]
+    partial class trialNewMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -147,23 +147,6 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ingredients");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Milk"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Butter"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Cheese"
-                        });
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
@@ -176,11 +159,6 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.Property<int>("Calories")
                         .HasColumnType("integer");
-
-                    b.Property<string>("IngredientsText")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -251,13 +229,13 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f3dada1c-f273-4657-b857-67d0334bad7a",
+                            Id = "85d6ab39-efd2-4eae-a769-84beae2ff362",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "78896574-7949-43c1-a17b-70c2b1a2e0f4",
+                            Id = "8e268e3c-6c21-4922-8320-126e67677bb2",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -325,6 +303,21 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.UserFavouriteRecipes", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "RecipeId");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("UserFavouriteRecipes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -406,6 +399,25 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("RecipeHub.Domain.UserFavouriteRecipes", b =>
+                {
+                    b.HasOne("RecipeHub.Domain.Recipe", "Recipe")
+                        .WithMany("UsersFavoritedBy")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecipeHub.Domain.User", "User")
+                        .WithMany("FavouriteRecipes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RecipeHub.Domain.Ingredient", b =>
                 {
                     b.Navigation("Recipes");
@@ -414,6 +426,13 @@ namespace RecipeHub.Infrastructure.Migrations
             modelBuilder.Entity("RecipeHub.Domain.Recipe", b =>
                 {
                     b.Navigation("Ingredients");
+
+                    b.Navigation("UsersFavoritedBy");
+                });
+
+            modelBuilder.Entity("RecipeHub.Domain.User", b =>
+                {
+                    b.Navigation("FavouriteRecipes");
                 });
 #pragma warning restore 612, 618
         }

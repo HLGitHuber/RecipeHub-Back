@@ -4,7 +4,7 @@ namespace RecipeHub.Infrastructure.Repositories
 {
     public interface IRecipeRepository
     {
-        Task<IEnumerable<Recipe>> GetRecipes();
+        Task<IEnumerable<Recipe>> GetRecipes(); //+async w nazwie
         Task<Recipe?> GetRecipe(int id);
         Task AddRecipe(Recipe recipe);
         Task<bool> UpdateRecipe(Recipe recipe);
