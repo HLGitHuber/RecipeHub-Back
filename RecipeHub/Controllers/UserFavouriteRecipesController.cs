@@ -2,9 +2,12 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Authorization;
 using RecipeHub.Domain;
 using RecipeHub.DTO_s;
 using RecipeHub.Infrastructure.Repositories;
+using System.Security.Claims;
+
 
 namespace RecipeHub.Controllers
 {
@@ -35,13 +38,14 @@ namespace RecipeHub.Controllers
             return Ok(recipesAllDto);
         }
 
-        [HttpPost("{userId}/add")]
+        [HttpPost("add/{recipeId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddRecipeToUserFavourites(string userId, [FromBody] int recipeId)
+        public async Task<IActionResult> AddRecipeToUserFavourites(int recipeId)
         {
-            _logger.LogInformation($"Adding new recipe to user with id {userId} favourites");
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (!ModelState.IsValid)
             {
@@ -50,29 +54,32 @@ namespace RecipeHub.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _repository.AddRecipeToUserFavouritesAsync(userId, recipeId);
+            await _repository.AddRecipeToUserFavouritesAsync(userIdClaim!, recipeId);
 
-            _logger.LogInformation($"Recipe with id {recipeId} added to favourites of user with id {userId}");
+            _logger.LogInformation($"Recipe with id {recipeId} added to favourites of user with id {userIdClaim}");
 
             return Ok();
         }
 
-        [HttpDelete("{userId}/delete")]
+        [HttpDelete("delete/{recipeId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteRecipeFromUserFavourites(string userId, [FromBody] int recipeId)
+        public async Task<IActionResult> DeleteRecipeFromUserFavourites(int recipeId)
         {
-            _logger.LogInformation($"Deleting recipe with id {recipeId} from user with id {userId} favourites");
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var success = await _repository.DeleteRecipeFromUserFavouritesAsync(userId, recipeId);
+            _logger.LogInformation($"Deleting recipe with id {recipeId} from user with id {userIdClaim} favourites");
+
+            var success = await _repository.DeleteRecipeFromUserFavouritesAsync(userIdClaim!, recipeId);
 
             if (!success)
             {
-                _logger.LogInformation($"Attempt to delete recipe with ID {recipeId} for user with {userId} failed");
+                _logger.LogInformation($"Attempt to delete recipe with ID {recipeId} for user with {userIdClaim} failed");
                 return NotFound();
             }
-            _logger.LogInformation($"Recipe with ID {recipeId} deleted from favourites of user with {userId}");
+            _logger.LogInformation($"Recipe with ID {recipeId} deleted from favourites of user with {userIdClaim}");
             return NoContent();
         }
     }
