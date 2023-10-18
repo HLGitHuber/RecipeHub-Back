@@ -3,14 +3,14 @@
 <p id="description">The project is the backend side of our El Proyecte Grande exercise - RecipeHub</p>
 
   
-# 📋 Table of Content
+## 📋 Table of Content
 
 * [Features](#features)
 * [Installation Steps](#installation-steps)
 * [Contribution Guidelines](#contribution-guidelines)
 
   
-# Features
+## Features
 
 Here're some of the project's best features:
 
@@ -20,7 +20,7 @@ Here're some of the project's best features:
 *   **Search and Filter:** Implement search and filter options to help users find recipes quickly.
 *   **API Integration:** Connect with external APIs to fetch additional ingredient data.
 
-# Installation Steps:
+## Installation Steps:
 
 <p>1. Clone the repository</p>
 
@@ -51,7 +51,7 @@ You'll need a PostgreSQL database for this project. If you haven't already set u
 Use `dotnet run` to start the server
 
 
-# Contribution Guidelines:
+## Contribution Guidelines:
 
 1\. **Fork the Repository:** Click the "Fork" button on the top of this repository.  
 2\. **Create a Branch:** Create a new branch for your contribution.  
